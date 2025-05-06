@@ -601,9 +601,6 @@ INTCLN=function(str)
 	return str;
 }
 
-
-
-
 G={
 	init:function()
 	{
@@ -630,7 +627,6 @@ G={
 			}
 		}
 		addEvent(document,'keydown',function(e){if (e.key=='Escape'){G.closePopup();}});
-		
 		G.glob={};
 		//perks
 		
@@ -1088,33 +1084,73 @@ G={
 					return true;
 				}
 			}
-			l('main').innerHTML=`
-				<div class="box blue">
-					<div><cap>Hey there!</cap></div>
-					<div>This is a game about pitting you and your friends against each other to see who makes it out alive.</div>
-					<div>The game plays itself; you only have to click the "Next round" button to progress.</div>
-					<div>Create your teams below then watch the heads roll!</div>
-					<div>(Don't forget to export your setups if you want to re-use them later!)</div>
-					<div style="opacity:0.5;font-size:10px;float:left;">inspired by <a href="http://brantsteele.net/hungergames/disclaimer.php" target="_blank">Hunger Games Simulator</a></div>
-					<div style="opacity:0.5;font-size:10px;float:right;">-Orteil</div>
-					<div style="clear:both;"></div>
+			l('main').innerHTML= `
+			<div class="box blue">
+				<div><cap>Hey there!</cap></div>
+				<div>This is a game about pitting you and your friends against each other to see who makes it out alive.</div>
+				<div>The game plays itself; you only have to click the "Next round" button to progress.</div>
+				<div>Create your teams below then watch the heads roll!</div>
+				<div>(Don't forget to export your setups if you want to re-use them later!)</div>
+				<div style="opacity:0.5;font-size:10px;float:left;">inspired by <a href="http://brantsteele.net/hungergames/disclaimer.php" target="_blank">Hunger Games Simulator</a></div>
+				<div style="opacity:0.5;font-size:10px;float:right;">-Orteil</div>
+				<div style="clear:both;"></div>
+			</div>
+			<!--<div class="box red"><b>Warning :</b> may contain traces of bugs.</div>-->
+			<div style="text-align:left;overflow:hidden;">
+				<div class="button" id="importSetup">Import an existing setup...</div> 
+				<div class="button" id="exportSetup">Export this setup...</div>
+				<div style="float:right;">
+					<div class="button" id="start2">Start round 1 &gt;</div>
 				</div>
-				<!--<div class="box red"><b>Warning :</b> may contain traces of bugs.</div>-->
-				<div style="text-align:left;overflow:hidden;"><div class="button" id="importSetup">Import an existing setup...</div> <div class="button" id="exportSetup">Export this setup...</div><div style="float:right;"><div class="button" id="start2">Start round 1 &gt;</div></div></div>
-				<header>Teams</header>
-				<div id="creator"></div>
-				<div style="text-align:left;"><div class="button" id="addTeam">Add team</div></div>
-				<header><div class="button bigButton" id="start">Start round 1</div></header>
+			</div>
+			<header>Battleground Conditions</header>
+			<div class="box">
+				<div><cap>Initial Weather:</cap> 
+					<select id="initialWeather">
+						<option value="random">Random</option>
+						<option value="sunny">Sunny</option>
+						<option value="cloudy">Cloudy</option>
+						<option value="rainy">Rainy</option>
+						<option value="drought">Drought</option>
+						<option value="thunder">Thunderstorm</option>
+						<option value="tornado">Tornado</option>
+						<option value="weird">Weird</option>
+					</select>
+				</div>
+				<div><cap>Weather Change Frequency:</cap> 
+					<select id="weatherChangeFreq">
+						<option value="default">Default (per weather type)</option>
+						<option value="low">Low (50% of default)</option>
+						<option value="high">High (150% of default)</option>
+						<option value="none">No Changes</option>
+						<option value="always">Change Every Round</option>
+					</select>
+				</div>
+				<div><cap>Natural Hostility:</cap>
+					<select id="hostility">
+						<option value="default">Default</option>
+						<option value="peace">Peaceful (0% of default)</option>
+						<option value="vlow">Very Low (20% of default)</option>
+						<option value="low">Low (50% of default)</option>
+						<option value="high">High (150% of default)</option>
+						<option value="vhigh">Very High (200% of default)</option>
+						<option value="death">I want my friends to die. (Just for fun)</option>
+					</select>
+				</div>
+			</div>
+			<header>Teams</header>
+			<div id="creator"></div>
+			<div style="text-align:left;"><div class="button" id="addTeam">Add team</div></div>
+			<header><div class="button bigButton" id="start">Start round 1</div></header>
 			`;
-			
+
 			addEvent(l('addTeam'),'click',function(){addTeam();});
 			addEvent(l('start'),'click',function(){G.start();});
 			addEvent(l('start2'),'click',function(){G.start();});
 			addEvent(l('importSetup'),'click',function(){G.importSetup();});
-			addEvent(l('exportSetup'),'click',function(){G.exportSetup();});
+			addEvent(l('exportSetup'),'click',function(){G.exportSetup();}); 
 			G.teams=[];
 			var domN=0;
-			
 			Sortable.create(l('creator'),{group:'teams',ghostClass:'dragGhost',handle:'.handle',onEnd:function(e){
 				var el=e.item;
 				var me=0;
@@ -1391,6 +1427,1283 @@ G={
 			if (G.setupData) G.importSetup(JSON.stringify(G.setupData));
 		}
 		
+		// Weather code   ***  ***               *******    **** 
+		// By Flo       *** ***** ***          ***** **** ** *****
+		//                **********     \|/    * * **** **** ***
+		//  Check out      ***** **      -O-     ****** ***** ***
+		//    The art ->  `  `  ` `      /|\      `   `  *******
+		//                  ` ``  `                 `` `     \\ `  ` 
+		// DOCUMENTATION      `  `  `  `           `  `   ` ` \\   `
+		// Weather -> Options   `     `              `   ` `  //
+		//                   ` `  ``   `               `  `  // `` ` 
+		// Sunny -> Sunny, Rainy, Cloudy, Drought, Weird   ` \\  `
+		// Cloudy -> Cloudy, Rainy, Sunny, Weird        `    // `  `
+		// Rainy -> Rainy, Cloudy, Thunder, Tornado, Weird   \|  `
+ 		// Drought -> Drought, Sunny, Thunder, Weird          \ `
+		// Thunder -> Thunder, Rainy, Tornado, Sunny, Weird   /
+		// Tornado -> Rainy, Thunder, Cloudy, Sunny, Weird    |
+		// Weird -> Sunny, Cloudy, Rainy, Drought, Thunder, Tornado, Weird
+		// Ctrl+F: weather code
+
+		const weatherStates = {
+				"sunny": {
+					"chance":0.2, // Chance to change weather each round, while sunny
+					"possibilities": { // These are thresholds, in ascending order, and should ALWAYS add to 1.
+						"sunny": 0.2, // 20% Chance
+						"rainy": 0.5, // 30% Chance
+						"cloudy": 0.9, // 45% Chance
+						"drought": 0.99, // 9% chance
+						"weird": 1  // 1% 
+					},
+					"col": "red",
+					"icon": "https://flowiz.moe/mashwet/sunny_icon.png"
+				},
+				"cloudy": {
+					"chance":0.4, 
+					"possibilities": {
+						"cloudy": 0.2, // 20%
+						"rainy": 0.6, // 40%
+						"sunny": 0.99, // 39% 
+						"weird:": 1 // 1% 
+					},
+					"col":"blue",
+					"icon":"https://flowiz.moe/mashwet/cloudy_icon.png"
+				
+				},
+				"rainy": {
+					"chance":0.3,
+					"possibilities": {
+						"rainy": 0.3, // 30%
+						"cloudy": 0.7, // 40%
+						"thunder": 0.9, // 20%
+						"tornado": 0.99, // 9%
+						"weird": 1 // 1%
+					},
+					"col":"blue",
+					"icon":"https://flowiz.moe/mashwet/rainy_icon.png"
+				},
+				"drought":{
+					"chance": 0.2,
+					"possibilities":{
+						"drought": 0.4, //40%
+						"sunny": 0.8, // 40$
+						"thunder": 0.99, // 19%
+						"weird": 1
+					},
+					"col": "red"
+				},
+				"thunder":{
+					"chance": 0.4,
+					"possibilities":{
+						"thunder": 0.4, // 40%
+						"rainy": 0.7, // 30%
+						"tornado": 0.8, // 10%
+						"sunny": 0.99, // 19%
+						"weird": 1
+					},
+					"col":"blue",
+					"icon":"https://flowiz.moe/mashwet/thunder_icon.png"		
+				},
+				"tornado":{
+					"chance": 0.5,
+					"possibilities":{
+						"rainy": 0.3,
+						"thunder": 0.6,
+						"cloudy": 0.9,
+						"sunny": 0.99, 
+						"weird": 1
+					},
+					"col":"blue",
+					"icon":"https://flowiz.moe/mashwet/toenado_icon.png" // haha orteil reference
+				},// Weird -> Sunny, Cloudy, Rainy, Drought, Thunder, Tornado, Weird
+				"weird:":{
+					"chance": 0.5,
+					"possibilities":{
+						"sunny": 0.17,
+						"cloudy": 0.33,
+						"rainy": 0.49,
+						"drought": 0.65,
+						"thunder": 0.82,
+						"tornado": 0.98,
+						"weird":1
+					},
+					"col":"green",
+					"icon":"https://flowiz.moe/mashwet/weird_icon.png"
+				}
+			}
+
+		const weather_transitions = {
+				sunny: {
+					sunny: [
+						"The sun continues to beat down mercilessly on the arena.",
+						"Another day of relentless sunshine bakes the landscape.",
+						"The golden sun hangs high in a cloudless sky.",
+						"Heat shimmers in the air as the sun blazes overhead.",
+						"Not a single cloud dares to block the sun's harsh glare.",
+						"The scorching sun turns the ground into a frying pan.",
+						"Sunlight reflects blindingly off every surface.",
+						"The air is still and heavy with heat.",
+						"Shadows shrink as the sun climbs to its peak.",
+						"The unrelenting sun drains energy from all beneath it.",
+						"Cracks form in dry soil under the sun's relentless gaze.",
+						"The arena becomes an oven under the midday sun.",
+						"Even the wind seems to avoid the sun's burning touch.",
+						"The sun's rays feel like physical weights pressing down.",
+						"The horizon wavers in the heat like a mirage.",
+						"Sun-bleached bones serve as reminders of the heat's danger.",
+						"The air smells of baked earth and dry grass.",
+						"Birds fall silent during the sun's most brutal hours.",
+						"Metal surfaces become too hot to touch.",
+        			],
+					cloudy: [
+						"Wispy clouds drift in, offering brief respite from the sun.",
+						"The sky darkens slightly as clouds roll in.",
+						"The sun disappears behind a thickening blanket of clouds.",
+						"A cool breeze picks up as the sky becomes overcast.",
+						"The oppressive heat lessens as clouds shield the arena.",
+						"High clouds diffuse the sunlight into a dull glow.",
+						"The sun struggles to pierce through the growing cloud cover.",
+						"Clouds creep across the sky like a slow-moving tide.",
+						"The temperature drops noticeably as clouds gather.",
+						"The sun's intensity fades behind a veil of gray.",
+						"Clouds form strange shapes as they block the sun's rays.",
+						"A bank of clouds rolls in from the distance.",
+						"The once-bright sky now looks like frosted glass.",
+						"The clouds seem to swallow the sun whole.",
+						"Sunbeams spotlight random patches of ground before vanishing.",
+						"The air feels thicker as clouds trap humidity below.",
+						"Cloud shadows race across the landscape.",
+						"The change comes suddenly - one moment sun, next moment clouds.",
+						"A milky haze fills the sky where blue once dominated.",
+						"The clouds don't promise rain, just temporary shade.",
+					],
+					rainy: [
+						"Dark clouds gather, and soon, rain begins to fall.",
+						"A sudden downpour drenches the arena, cooling the air.",
+						"The sun vanishes behind storm clouds, and rain pours down.",
+						"Thunder rumbles in the distance before the rain arrives.",
+						"The dry earth eagerly soaks up the falling rain.",
+						"The first fat raindrops sizzle as they hit sun-baked stones.",
+						"A curtain of rain sweeps across the arid landscape.",
+						"The scent of petrichor rises as rain hits parched soil.",
+						"Within minutes, the sunny day transforms into a rainstorm.",
+						"The rain comes so hard it bounces back up from the ground.",
+						"Steam rises where cold rain meets sun-heated rocks.",
+						"The rain falls in sheets, obscuring vision beyond a few feet.",
+						"What began as a drizzle quickly becomes a deluge.",
+						"The rain's rhythm creates a hypnotic pounding on leaves and earth.",
+						"Animals scramble for cover as the sudden storm arrives.",
+						"The rain washes away days of accumulated dust and heat.",
+						"Puddles form almost instantly on the unprepared ground.",
+						"The temperature plummets as cold rain replaces baking sun.",
+						"Raindrops glitter like diamonds in the last rays of sunlight.",
+						"The storm arrives with no warning, dousing everything in seconds.",
+					],
+					drought: [
+						"The air grows even drier as the sun scorches the land.",
+						"The heat intensifies, cracking the earth beneath their feet.",
+						"No rain has fallen for days—the land is parched.",
+						"The sun burns hotter, evaporating what little moisture remains.",
+						"Plants wilt as the drought tightens its grip.",
+						"Every breath feels like inhaling from a furnace.",
+						"The ground crunches like broken pottery underfoot.",
+						"Even the hardiest plants curl their leaves against the dryness.",
+						"The wind carries dust instead of relief.",
+						"Water sources shrink daily under the unrelenting sun.",
+						"The air crackles with static from the pervasive dryness.",
+						"Morning dew becomes a thing of memory rather than reality.",
+						"Animal tracks in dried mud show their desperate search for water.",
+						"The drought turns vibrant greens to dull, lifeless browns.",
+						"Food becomes scarce as plants stop producing fruits.",
+						"The sun seems larger, closer, more oppressive each day.",
+						"Skin cracks and lips chap without moisture in the air.",
+						"Shadows offer no real relief from the baking heat.",
+						"The horizon shimmers with heat distortions constantly.",
+						"Birds abandon nests as water sources vanish entirely.",
+					],
+					thunder: [
+						"Dark clouds roll in, and lightning splits the sky.",
+						"A booming thunderclap announces the coming storm.",
+						"The sunny sky turns violent as thunder shakes the ground.",
+						"Lightning flickers in the distance before the storm hits.",
+						"The calm before the storm ends with a deafening crack of thunder.",
+						"The temperature drops sharply as thunderheads blot out the sun.",
+						"A sudden wind kicks up dust before the first lightning strike.",
+						"The storm approaches with visible sheets of rain in the distance.",
+						"Clouds darken to an ominous purple-black hue.",
+						"Distant thunder sounds like boulders tumbling down mountains.",
+						"The first lightning bolt connects earth and sky with a blinding flash.",
+						"Static electricity makes hair stand on end before the storm hits.",
+						"The wind shifts abruptly as the thunderstorm moves in.",
+						"Lightning forks across the sky in spectacular displays.",
+						"The once-clear sky now churns with angry clouds.",
+						"Thunder echoes off hills and valleys, magnifying its power.",
+						"The storm's leading edge arrives with a wall of cold air.",
+						"Birds flee en masse before the electrical storm arrives.",
+						"The sunny day becomes a memory as the tempest takes over.",
+						"Lightning strikes so close the ozone smell is immediate.",
+					],
+					tornado: [
+						"The wind howls as dark, twisting clouds form on the horizon.",
+						"A sudden drop in pressure signals a coming tornado.",
+						"The sky turns an eerie green as a funnel cloud forms.",
+						"Debris swirls in the air as a tornado touches down.",
+						"The peaceful sunny day is shattered by a roaring twister.",
+						"The temperature plummets seconds before the tornado forms.",
+						"A wall cloud rotates ominously before the funnel descends.",
+						"The tornado appears with little warning, a monster of wind.",
+						"What was sunshine becomes a nightmare of swirling destruction.",
+						"The twister's path becomes clear as it devours everything in its way.",
+						"The sun disappears behind the tornado's massive funnel.",
+						"The sound builds from a rumble to a deafening freight train roar.",
+						"Grass lies flat in spiral patterns as the tornado approaches.",
+						"The funnel dances erratically across the landscape.",
+						"Lightning illuminates the tornado's terrifying structure.",
+						"The pressure change makes ears pop painfully.",
+						"The tornado sucks up dust and debris, turning black with rubble.",
+						"Smaller whirlwinds spin off from the main funnel unpredictably.",
+						"The twister's winds tear at everything with unimaginable force.",
+						"Survival depends on finding shelter from the sudden vortex.",
+					],
+					weird: [
+						"The sun flickers like a dying lightbulb before stabilizing.",
+						"The sky turns purple for a moment before returning to normal.",
+						"A strange mist rolls in, despite the clear sky.",
+						"The air hums with an unnatural energy.",
+						"The laws of physics seem to bend for a brief moment.",
+						"The sun pulses oddly, growing dimmer then brighter rhythmically.",
+						"Shadows stretch in wrong directions for a few unsettling minutes.",
+						"The horizon appears to curve upward at the edges briefly.",
+						"Gravity feels lighter, then heavier, then normal again.",
+						"A second sun appears in the sky for a few heartbeats.",
+						"The sunlight takes on a metallic sheen for no discernible reason.",
+						"Time seems to stutter—a bird's wings freeze mid-flap then continue.",
+						"The air tastes like pennies and static electricity.",
+						"The sun's rays feel cold instead of warm for several minutes.",
+						"Everything appears slightly blurred, like a bad photograph.",
+						"A low-frequency vibration makes teeth ache before vanishing.",
+						"The wind blows in perfect geometric patterns across the ground.",
+						"All sounds become muffled as if underwater for a brief period.",
+						"The sun divides into a double image before merging back.",
+						"For one terrifying moment, the sun appears to be growing larger.",
+					]
+				},
+				cloudy: {
+					cloudy: [
+						"The sky remains a dull, featureless gray.",
+						"A thick layer of clouds blocks out direct sunlight.",
+						"The overcast sky makes it hard to tell the time of day.",
+						"The air is cool and still under the blanket of clouds.",
+						"The clouds shift slowly but refuse to part.",
+						"A monotonous gray ceiling stretches from horizon to horizon.",
+						"The clouds hang low, almost feeling within reach.",
+						"Diffuse light filters through the cloud cover evenly.",
+						"The cloud layer seems to mute all colors in the landscape.",
+						"Occasional breaks in the clouds tease sunlight that never comes.",
+						"The clouds move like a slow-motion river across the sky.",
+						"A persistent haze blurs the line between sky and land.",
+						"The cloud cover acts like nature's dimmer switch.",
+						"The overcast conditions create an eternal twilight feeling.",
+						"Clouds cling to the landscape like a damp woolen blanket.",
+						"The grayness overhead seems to absorb all sound.",
+						"The clouds form an unbroken dome over the arena.",
+						"Mist mingles with the low-hanging cloud cover.",
+						"The clouds appear heavy with moisture yet release nothing.",
+						"The overcast sky creates a somber, muted atmosphere.",
+					],
+					sunny: [
+						"The clouds break, and sunlight floods the arena.",
+						"A warm breeze scatters the clouds, revealing blue sky.",
+						"The overcast sky clears, bringing back the sun's heat.",
+						"Sunlight pierces through, burning away the last of the clouds.",
+						"The gray gloom lifts, replaced by golden rays.",
+						"Like curtains opening, the clouds part to reveal brilliant sunshine.",
+						"The cloud cover fractures, allowing beams of sunlight through.",
+						"The overcast blanket dissolves into scattered puffs of white.",
+						"Blue sky emerges victorious in its battle against the clouds.",
+						"The clouds retreat as if frightened by the returning sun.",
+						"Sunbeams stab through remaining cloud gaps like spotlights.",
+						"The temperature rises noticeably as the sun dominates again.",
+						"What was gray becomes gold as the sun reclaims the sky.",
+						"The clouds evaporate under the sun's relentless assault.",
+						"Shadows suddenly reappear as direct sunlight returns.",
+						"The arena brightens as if someone turned up a dimmer switch.",
+						"Cloud remnants flee to the horizon, chased by sunlight.",
+						"The air feels instantly drier as the sun burns through moisture.",
+						"Colors seem more vibrant after their time under gray skies.",
+						"The transition from cloudy to sunny happens almost abruptly.",
+					],
+					rainy: [
+						"The clouds darken, and soon, rain begins to fall.",
+						"A steady drizzle turns into a proper downpour.",
+						"The humidity builds until rain finally breaks through.",
+						"Thunder rumbles, and the clouds release their burden.",
+						"The air smells of ozone before the rain arrives.",
+						"The clouds sink lower until they begin shedding rain.",
+						"What was mist becomes rain as the clouds condense further.",
+						"The first cold drops surprise those beneath the gray sky.",
+						"The clouds finally fulfill their promise of precipitation.",
+						"Rain falls in straight sheets from the uniform gray above.",
+						"The overcast sky transitions seamlessly into rainfall.",
+						"The temperature drops further as the rain begins in earnest.",
+						"The clouds transform from passive observers to active participants.",
+						"A curtain of rain descends with no fanfare or warning.",
+						"The rain starts softly but gains conviction quickly.",
+						"The arena becomes a study in gray and silver as rain falls.",
+						"Puddles form quickly on ground already softened by humidity.",
+						"The rain arrives not with violence but with quiet determination.",
+						"Clouds that merely threatened now deliver on their promise.",
+						"The transition from cloudy to rainy feels inevitable.",
+					],
+					drought: [
+						"The clouds dissipate without shedding a single drop.",
+						"The overcast sky thins until no moisture remains.",
+						"What might have been rain instead evaporates in dry air.",
+						"The clouds burn away, leaving only parched earth behind.",
+						"The gray sky fades to a harsh, cloudless blue.",
+						"The promised rain never comes as clouds vanish completely.",
+						"The air grows drier as the cloud cover disappears.",
+						"Clouds retreat, taking all humidity with them.",
+						"The overcast conditions give way to baking dryness.",
+						"The clouds seem to be sucked away by thirsty atmosphere.",
+						"Not a drop falls as the sky clears to a waterless state.",
+						"The land's thirst goes unquenched as clouds disperse.",
+						"The gray blanket unravels into nothingness, bringing no relief.",
+						"Clouds that might have brought rain instead abandon the arena.",
+						"The air cracks with dryness as the last clouds vanish.",
+						"The transition from cloudy to drought happens silently.",
+						"All moisture is pulled from the air as clouds disappear.",
+						"The earth sighs as potential rain turns to dust instead.",
+						"The sky's gray pallor fades to a harsh, arid clarity.",
+						"Clouds that promised relief instead deliver only absence.",
+					],
+					thunder: [
+						"The clouds grow darker, and lightning flickers within them.",
+						"A deep rumble shakes the ground as the storm intensifies.",
+						"The overcast sky erupts with sudden lightning strikes.",
+						"The calm clouds give way to a violent thunderstorm.",
+						"A flash of light precedes a deafening thunderclap.",
+						"The gray ceiling overhead becomes a lightning-charged menace.",
+						"Clouds that were passive suddenly crackle with energy.",
+						"The first lightning bolt turns the gray sky electric blue.",
+						"The overcast conditions become a stage for nature's light show.",
+						"Thunder echoes between clouds that moments ago were silent.",
+						"The clouds convulse as the thunderstorm takes hold.",
+						"What was uniform gray becomes a patchwork of light and dark.",
+						"The air smells charged as the clouds unleash their power.",
+						"The transition from cloudy to thunderous happens explosively.",
+						"The clouds lower themselves like a ceiling before the storm.",
+						"Distant thunder grows closer until it's directly overhead.",
+						"The clouds organize themselves into proper storm formations.",
+						"Lightning forks between cloud layers in spectacular displays.",
+						"The gray monotony breaks into chaotic electrical activity.",
+						"The clouds seem to gather their strength before the thunder begins.",
+					],
+					tornado: [
+						"The wind begins to rotate as the clouds lower ominously.",
+						"A funnel cloud forms amid the uniform grayness above.",
+						"The overcast sky develops an eerie, greenish tint.",
+						"What were mere clouds now spin with deadly purpose.",
+						"The clouds organize into a rotating mass of destruction.",
+						"The gray ceiling overhead begins swirling in a circular pattern.",
+						"A finger of cloud reaches down from the overcast sky.",
+						"The clouds seem to be sucked downward into a growing vortex.",
+						"The wind shifts abruptly as rotation begins in the cloud layer.",
+						"The overcast conditions become the birthplace of a twister.",
+						"Clouds that were featureless now form a terrifying spiral.",
+						"The air pressure drops suddenly as the tornado forms.",
+						"The gray sky transforms into a churning mass of rotation.",
+						"A dark point forms in the clouds, extending earthward.",
+						"The clouds appear to be boiling before the funnel descends.",
+						"The transition from cloudy to tornadic happens terrifyingly fast.",
+						"The cloud base lowers dramatically as rotation increases.",
+						"What was passive overcast becomes an active threat.",
+						"The clouds seem to be tearing themselves apart to form the funnel.",
+						"A continuous roar builds as the tornado touches down.",
+					],
+					weird: [
+						"The clouds twist into unnatural shapes before reforming.",
+						"A strange, glowing fog rolls in from nowhere.",
+						"The wind changes direction suddenly, defying logic.",
+						"The clouds pulse with an eerie, bioluminescent light.",
+						"For a moment, the sky seems to invert colors.",
+						"The clouds begin moving in perfect geometric patterns.",
+						"The overcast sky develops impossible fractal formations.",
+						"The clouds separate into distinct, equally-sized puffs.",
+						"The grayness overhead starts shimmering like liquid metal.",
+						"The cloud layer undulates as if breathing.",
+						"The clouds freeze in place despite strong winds at ground level.",
+						"The overcast sky begins rotating slowly like a giant wheel.",
+						"The clouds start glowing faintly from within.",
+						"The cloud cover develops strange, vein-like patterns.",
+						"The sky appears to be a painted backdrop for several minutes.",
+						"The clouds begin dripping upward instead of raining downward.",
+						"The overcast conditions amplify sounds strangely.",
+						"The clouds form shapes that seem almost recognizable.",
+						"The gray sky ripples like a flag in an unfelt wind.",
+						"The cloud layer separates into perfect concentric circles.",
+					],
+				},  
+				rainy: {
+					rainy: [
+						"The rain keeps falling in a steady rhythm.",
+						"Puddles grow larger as the downpour continues.",
+						"The sound of rain on leaves fills the air.",
+						"Mud forms underfoot as the rain persists.",
+						"Visibility drops as the rain thickens.",
+						"Raindrops dance on every surface in endless patterns.",
+						"The constant rainfall creates a silver veil over the arena.",
+						"Rivulets of water carve tiny canyons in the soft earth.",
+						"The rain's tempo varies from drizzle to deluge and back.",
+						"Everything becomes slick and shiny under the perpetual rain.",
+						"The world seems reduced to shades of gray and wet.",
+						"Animals huddle wherever they can find minimal shelter.",
+						"The rain falls straight down in perfect parallel lines.",
+						"Each surface reacts differently to the endless bombardment of drops.",
+						"The rain becomes a white noise that drowns out all other sounds.",
+						"What began as refreshing now feels oppressive in its constancy.",
+						"The rain transforms the arena into a watercolor painting.",
+						"There's no beginning or end to the rainfall - just eternal wetness.",
+						"The rain seems to isolate each person in their own watery world.",
+						"Time becomes meaningless under the unchanging rainy sky.",
+					],
+					sunny: [
+						"The clouds part, and sunlight dries the soaked earth.",
+						"The rain stops, and steam rises from the warm ground.",
+						"A rainbow forms as the storm gives way to sunshine.",
+						"The last raindrops fall before the sun returns.",
+						"The oppressive humidity lingers even as the sun comes out.",
+						"Like a curtain lifting, the rain ceases and sunlight bursts forth.",
+						"The rain evaporates mid-air in the sudden return of heat.",
+						"Golden light breaks through, turning every raindrop into a prism.",
+						"The clouds retreat grudgingly before the sun's advance.",
+						"The arena sparkles as sunlight catches on a million water droplets.",
+						"The transition from rain to sun happens almost violently fast.",
+						"Steam rises from rocks as the sun bakes away the moisture.",
+						"The rain's absence feels as sudden as its arrival had been.",
+						"Colors return to the world as the gray veil of rain dissipates.",
+						"The sun's warmth is almost shocking after the cool rain.",
+						"Puddles shrink visibly under the sun's renewed assault.",
+						"The last remnants of the storm flee to the horizon.",
+						"Light returns to the arena as if someone flipped a switch.",
+						"The air fills with the earthy scent of petrichor in sunlight.",
+						"What was gloomy becomes glorious in the sun's reappearance.",
+					],
+					cloudy: [
+						"The rain stops, but the sky remains heavy with clouds.",
+						"The downpour lessens to a drizzle, then stops entirely.",
+						"The storm passes, leaving behind a damp, gray sky.",
+						"The rain ceases, but the air remains thick with moisture.",
+						"Only a few stray drops fall now as the clouds thin.",
+						"The rainfall tapers off, leaving everything wet but no longer getting wetter.",
+						"The angry storm clouds mellow into passive overcast.",
+						"The rain exhausts itself, leaving only the memory of moisture.",
+						"The deluge ends, but the clouds linger as if deciding what to do next.",
+						"The transition from rain to cloudy is seamless and subtle.",
+						"The storm's energy dissipates, leaving only gray stillness.",
+						"The rain stops so gradually no one notices at first.",
+						"The clouds remain, but their burden of water is spent.",
+						"The rainfall ends, leaving the world in a damp pause.",
+						"The storm's fury gives way to calm overcast conditions.",
+						"The clouds lighten from stormy black to mere gray.",
+						"The rain leaves as quietly as it arrived, without fanfare.",
+						"The wetness persists even as the falling water ceases.",
+						"The clouds seem to rest after their watery exertion.",
+						"The arena exists in a damp limbo between storms.",
+					],
+					drought: [
+						"The rain stops abruptly, and the air becomes bone-dry.",
+						"All moisture is sucked from the air as if by magic.",
+						"The wet ground steams and then cracks under sudden heat.",
+						"The storm clouds evaporate into nothingness.",
+						"The rain ceases mid-fall, leaving only parched air.",
+						"What was a downpour becomes a memory in seconds.",
+						"The humidity vanishes as if someone opened a giant oven door.",
+						"Puddles disappear unnaturally fast under the sudden drought.",
+						"The rain is replaced by a heat that burns away all moisture.",
+						"The transition from soaked to arid happens shockingly fast.",
+						"The clouds don't just part - they disintegrate into dry air.",
+						"The last raindrops evaporate before hitting the ground.",
+						"The storm's end brings not relief but oppressive dryness.",
+						"The air becomes so dry it hurts to breathe almost immediately.",
+						"The land goes from flooded to cracked in mere hours.",
+						"The rain stops, and the sun bakes everything into hardness.",
+						"What was waterlogged becomes dust almost overnight.",
+						"The weather swings violently from one extreme to another.",
+						"The storm leaves no trace except in memories and mud cracks.",
+						"The arena transforms from swamp to desert in an eyeblink.",
+					],
+					thunder: [
+						"The rain intensifies, and lightning splits the sky.",
+						"A deep thunderclap shakes the ground as the storm worsens.",
+						"The downpour turns violent as thunder booms overhead.",
+						"The rain becomes torrential as the thunderstorm hits.",
+						"Lightning strikes nearby, illuminating the rain-soaked arena.",
+						"The steady rain evolves into a full electrical storm.",
+						"The rainfall becomes secondary to the lightning show above.",
+						"Thunder shakes the ground hard enough to ripple puddles.",
+						"The storm redoubles its efforts with added lightning.",
+						"The rain goes from background noise to center stage.",
+						"The transition from rain to thunderstorm is abrupt and loud.",
+						"Lightning turns the falling rain into momentary silver threads.",
+						"The storm seems to gather its strength for a new assault.",
+						"The rain becomes just one element of a larger tempest.",
+						"Thunder echoes off the wet surfaces, amplifying its power.",
+						"The rainfall becomes chaotic rather than rhythmic.",
+						"Lightning flashes make the raindrops glow like fireflies.",
+						"The storm graduates from wet to electrifying.",
+						"The rain seems energized by the lightning's presence.",
+						"What was a simple downpour becomes a multisensory assault.",
+					],
+					tornado: [
+						"The wind picks up violently, twisting the falling rain.",
+						"A funnel cloud forms in the distance, growing closer.",
+						"The rain swirls unnaturally as a tornado touches down.",
+						"The storm takes a deadly turn as a twister forms.",
+						"The howling wind drowns out all other sounds.",
+						"The rain starts moving sideways as rotation begins.",
+						"What was vertical rain becomes horizontal debris.",
+						"The storm spawns a tornado almost casually.",
+						"The rainfall becomes part of the tornado's deadly ballet.",
+						"The transition from rainstorm to tornado happens terrifyingly fast.",
+						"The rain becomes just one component of the swirling vortex.",
+						"The wind's howl rises above the rain's constant patter.",
+						"The tornado seems to drink the rain from the sky itself.",
+						"The storm focuses its energy into a single deadly point.",
+						"The rain becomes projectiles in the tornado's winds.",
+						"The rainfall patterns betray the forming rotation above.",
+						"The tornado turns the rain into a weapon.",
+						"The storm's center drops as the funnel takes shape.",
+						"The rain moves in spirals before the full tornado forms.",
+						"What was wet becomes deadly in the twister's embrace.",
+					],
+					weird: [
+						"The rain suddenly stops mid-fall, hovering in the air.",
+						"The raindrops begin falling upward instead of down.",
+						"The storm pauses, as if time itself has frozen.",
+						"The rain takes on an odd, metallic sheen.",
+						"A single raindrop hangs suspended in midair, defying gravity.",
+						"The rainfall becomes perfectly synchronized in rhythm.",
+						"Raindrops start merging in midair to form larger spheres.",
+						"The rain begins falling in geometric patterns.",
+						"The sound of rain cuts out abruptly while drops continue falling.",
+						"The rainfall becomes polarized - only hitting certain areas.",
+						"The rain changes color mid-fall from clear to vivid hues.",
+						"Some raindrops freeze while others continue falling normally.",
+						"The rain starts and stops in perfect, rhythmic intervals.",
+						"The raindrops begin bouncing instead of splashing on impact.",
+						"The storm seems to be raining in slow motion.",
+						"The rainfall becomes noiseless despite its intensity.",
+						"The raindrops start glowing faintly as they fall.",
+						"The rain begins falling in perfect straight lines only.",
+						"The storm seems to be raining identical droplet copies.",
+						"The rainfall develops a strange, harmonic hum.",
+					],
+				},
+				drought: {
+					drought: [
+						"The cracked earth grows even drier.",
+						"The air is so dry it hurts to breathe.",
+						"No relief comes—the drought drags on.",
+						"Plants wither further under the unrelenting dryness.",
+						"Dust swirls in the hot, stagnant air.",
+						"Every breath feels like inhaling from an open furnace.",
+						"The ground crumbles to powder at the slightest touch.",
+						"Lizards seek shade beneath rocks that are too hot to touch.",
+						"The horizon shimmers with heat mirages that never materialize.",
+						"Animal bones bleach whiter under the relentless sun.",
+						"The wind carries more dust than air through the parched arena.",
+						"Cracks in the earth deepen into jagged crevices.",
+						"The last stubborn weeds finally surrender to the aridity.",
+						"Morning brings no dew—only another day of scorching heat.",
+						"The air crackles with static from the pervasive dryness.",
+						"Shadows offer no relief from the baking ground.",
+						"Metal objects become too hot to handle within minutes.",
+						"The drought's grip tightens like a vice with each passing hour.",
+						"Even the hardiest insects burrow deep to escape the surface heat.",
+						"The landscape becomes a monochrome of tans and bleached whites.",
+					],
+					sunny: [
+						"The heat remains, but at least the air isn't as parched.",
+						"The drought lessens slightly as humidity returns.",
+						"The sun still burns, but the earth is no longer cracking.",
+						"The dry spell breaks, though the sun stays strong.",
+						"A faint breeze brings a hint of moisture back.",
+						"The transition from drought to sunny feels like a minor reprieve.",
+						"The air loses its desert-like dryness but keeps its heat.",
+						"The sun's intensity remains, but the deadly aridity fades.",
+						"Ground that was powder becomes merely dry under the sun.",
+						"The arena moves from deadly drought to regular summer heat.",
+						"The sun seems less hostile as the extreme dryness abates.",
+						"What was cracked earth becomes merely hard-baked soil.",
+						"The temperature stays high but becomes more bearable.",
+						"The drought's edge softens while the sunshine persists.",
+						"The air no longer steals moisture from lungs with each breath.",
+						"The landscape remains sunbaked but no longer lifeless.",
+						"Morning brings traces of humidity instead of pure aridity.",
+						"The shift from drought to sunny is subtle but noticeable.",
+						"Plants stop dying and simply stop growing instead.",
+						"The world transitions from desert-like to merely arid."
+					],
+					cloudy: [
+						"Clouds appear like distant promises on the horizon.",
+						"The sky loses its harsh blue as clouds filter the sun.",
+						"A milky haze spreads across the sky, softening the light.",
+						"High clouds drift in, offering the illusion of moisture.",
+						"The air feels less desperate as clouds mute the sun's fury.",
+						"The transition from drought to cloudy brings false hope.",
+						"Clouds form but carry no rain—only temporary shade.",
+						"The sky turns from clear blue to hazy white.",
+						"The sun becomes a diffuse glow behind high cirrus clouds.",
+						"The landscape sighs under the cloud-filtered light.",
+						"Clouds tease the parched earth with their mere presence.",
+						"The air loses its crystalline clarity as clouds move in.",
+						"What was sharp sunlight becomes muted and indirect.",
+						"The clouds seem reluctant to commit to actual rain.",
+						"The drought persists even as the sky becomes overcast.",
+						"The temperature drops slightly with the new cloud cover.",
+						"The arena waits in suspense under the cloudy sky.",
+						"Cloud shadows race across the drought-stricken land.",
+						"The air feels thicker but no wetter with the clouds' arrival.",
+						"The transition brings visual relief if not actual moisture."
+					],
+					rainy: [
+						"The dry air shocks everyone as rain begins to fall.",
+						"A sudden downpour ends the drought with violent relief.",
+						"The first raindrops sizzle as they hit superheated ground.",
+						"The long dry spell breaks with a torrential rainstorm.",
+						"Dust turns to mud in seconds as the rain arrives.",
+						"The transition from drought to rain is sudden and dramatic.",
+						"The rain comes so hard it bounces off the parched earth.",
+						"Steam rises as cool rain meets sun-baked rocks.",
+						"The scent of petrichor overwhelms the previously dry air.",
+						"Cracks in the earth seal themselves as water rushes in.",
+						"The rain falls like a gift to the desperate landscape.",
+						"What was dust becomes slurry under the sudden deluge.",
+						"The drought's end arrives with thunderous applause.",
+						"Plants seem to stretch upward to catch the falling rain.",
+						"The arena transforms from desert to wetland in minutes.",
+						"The rain washes away months of accumulated dust.",
+						"Puddles form instantly where none existed for ages.",
+						"The sound of rain is almost alien after the long drought.",
+						"Every surface drinks greedily from the sudden abundance.",
+						"The drought's memory fades with each falling raindrop."
+					],
+					thunder: [
+						"Dry lightning splits the sky without bringing rain.",
+						"Thunder rumbles ominously over the parched landscape.",
+						"The air crackles with static as a dry storm builds.",
+						"Heat lightning flickers on the horizon, promising nothing.",
+						"The drought continues despite the atmospheric drama.",
+						"The transition brings sound and light but no moisture.",
+						"Lightning strikes start small fires in the tinder-dry brush.",
+						"Thunder echoes across the drought-stricken arena.",
+						"The storm taunts the earth with its withheld rain.",
+						"Electrical activity increases without relieving the dryness.",
+						"The sky puts on a light show but keeps its water to itself.",
+						"Distant thunder mocks the still-parched ground.",
+						"The air smells of ozone but not of coming rain.",
+						"Cloud-to-cloud lightning illuminates the dry night sky.",
+						"The drought persists through the thunder's empty threats.",
+						"The storm's energy dissipates without yielding precipitation.",
+						"Lightning rods the only things drinking from this storm.",
+						"The thunder grows louder but the earth stays dry.",
+						"The electrical storm seems angry at its own impotence.",
+						"The arena watches helplessly as the dry lightning continues."
+					],
+					tornado: [
+						"Dust devils merge into something more dangerous.",
+						"The superheated air spawns a terrifying dust tornado.",
+						"A funnel cloud forms without any accompanying rain.",
+						"The drought creates its own twisted version of a tornado.",
+						"Swirling dust becomes a full-fledged dry vortex.",
+						"The transition from drought to tornado is eerily silent.",
+						"What little moisture exists gets sucked into the dry whirlwind.",
+						"The tornado forms from heat differentials rather than storms.",
+						"Dust replaces rain as the tornado's primary ammunition.",
+						"The arid air spins itself into a deadly dry whirlwind.",
+						"The funnel cloud looks wrong without any rain curtains.",
+						"The tornado seems born from the earth's desperation.",
+						"Debris flies just as deadly without any water involved.",
+						"The dry twister moves unpredictably across the landscape.",
+						"The drought's final insult—a tornado without relief.",
+						"The air becomes thick with swirling dust and sand.",
+						"The tornado's howl sounds hoarse in the dry air.",
+						"Plants get uprooted and immediately turn to dust.",
+						"The arena becomes a battleground of swirling dryness.",
+						"The drought spawns this abomination of a tornado."
+					],
+					weird: [
+						"The cracked earth begins glowing faintly red.",
+						"The air becomes so dry it starts crystallizing.",
+						"All shadows disappear despite the bright sunlight.",
+						"The drought conditions create impossible heat mirages.",
+						"The ground starts smoking without anything burning.",
+						"The transition from drought to weird is barely noticeable.",
+						"The air becomes thin like at high altitudes, but flat.",
+						"Sounds distort strangely in the super-dry air.",
+						"The horizon seems to stretch and warp visually.",
+						"Everything starts tasting metallic despite the dryness.",
+						"The drought conditions create static electricity everywhere.",
+						"The sun appears to pulse in the weirdly clear air.",
+						"The ground develops geometric crack patterns.",
+						"The air becomes perfectly still and silent.",
+						"The remaining plants start growing in spiral patterns.",
+						"The heat becomes somehow both more and less intense.",
+						"The landscape starts looking like an alien planet.",
+						"Time seems to move differently under the weird drought.",
+						"The air itself seems to be slowly evaporating.",
+						"The drought crosses over into something supernatural."
+					]
+				},
+				thunder: {
+					thunder: [
+						"Lightning continues to split the sky at random intervals.",
+						"Thunder shakes the ground every few minutes.",
+						"The storm shows no sign of letting up.",
+						"The air is charged with electricity.",
+						"Each thunderclap is louder than the last.",
+						"Cloud-to-ground lightning strikes with terrifying frequency.",
+						"The storm seems to be circling the arena like a predator.",
+						"Thunder echoes off hills in overlapping waves of sound.",
+						"Barometric pressure drops precipitously as the storm intensifies.",
+						"The lightning has no pattern - striking anywhere at any time.",
+						"Thunder rattles teeth and vibrates through chest cavities.",
+						"The storm's electrical activity is increasing exponentially.",
+						"Lightning illuminates the landscape in strobe-light flashes.",
+						"The thunder has moved beyond noise into physical vibration.",
+						"Ozone saturates the air with its sharp metallic scent.",
+						"The storm seems alive - consciously hunting for targets.",
+						"Lightning forks in fractal patterns across the black sky.",
+						"Thunderclaps arrive before the previous echo fades.",
+						"The electrical storm is rewriting the arena's topography.",
+						"This isn't weather anymore - it's elemental warfare.",
+					],
+					sunny: [
+						"The storm passes, leaving behind a clear blue sky.",
+						"The last lightning flickers as the clouds break apart.",
+						"Sunlight pierces through, drying the storm-soaked earth.",
+						"The thunder fades into the distance, and calm returns.",
+						"A rainbow forms as the storm dissipates.",
+						"The tempest exhausts itself in one final thunderous salute.",
+						"Blue sky punches through the retreating storm clouds.",
+						"The transition from fury to calm happens almost magically.",
+						"Golden light returns as if the storm never occurred.",
+						"The arena steams as sunlight bakes away the storm's moisture.",
+						"The electrical storm burns itself out with dramatic finality.",
+						"What was chaos becomes serenity in minutes.",
+						"The sun's reappearance feels like a divine blessing.",
+						"The storm leaves as abruptly as it arrived.",
+						"Lightning gives way to golden-hour sunlight.",
+						"The tempest's departure leaves the world reborn.",
+						"The air smells fresh-scrubbed after the storm's passing.",
+						"The last thunderclap sounds more tired than angry.",
+						"The storm clouds retreat with their tails between their legs.",
+						"Sunlight transforms the battlefield into something peaceful.",
+					],
+					cloudy: [
+						"The lightning stops, but the clouds remain heavy.",
+						"The thunderstorm downgrades to mere overcast.",
+						"The worst of the storm passes, leaving only gray.",
+						"The thunder becomes distant, but the clouds linger.",
+						"The electrical charge dissipates, leaving only wetness.",
+						"The storm's fury gives way to sullen cloud cover.",
+						"The transition from violent to passive happens gradually.",
+						"The thunder sounds apologetic as it retreats.",
+						"The lightning stops first, then the thunder, then the rain.",
+						"The arena exists in the storm's quiet aftermath.",
+						"The clouds lighten from angry black to contemplative gray.",
+						"The storm leaves the sky bruised but no longer bleeding.",
+						"The electrical activity moves on to terrorize elsewhere.",
+						"The thunder's echo is the last to leave the arena.",
+						"The clouds seem exhausted from their electrical display.",
+						"What was a threat becomes merely a possibility.",
+						"The storm leaves its clouds behind like spent shells.",
+						"The air still hums with residual energy.",
+						"The tempest becomes memory while its clouds remain.",
+						"The transition leaves the world in meteorological limbo.",
+					],
+					rainy: [
+						"The lightning ceases, but the rain keeps falling.",
+						"The thunderstorm downgrades to a steady downpour.",
+						"The electrical energy converts to pure precipitation.",
+						"The thunder becomes background noise to the rainfall.",
+						"The storm loses its teeth but keeps its tears.",
+						"The transition from thunder to rain is seamless.",
+						"The lightning stops first, then the thunder fades.",
+						"The rain continues the storm's work by other means.",
+						"The tempest forgets its anger but remembers its sorrow.",
+						"The arena trades electrical fury for waterlogged calm.",
+						"The storm forgets to shout but remembers to cry.",
+						"The rainfall becomes rhythmic rather than chaotic.",
+						"The thunder's absence makes the rain seem gentle.",
+						"The lightning departs, leaving only its rainy aftermath.",
+						"The storm exhausts its anger but not its reserves.",
+						"The rain continues as the thunderstorm's quiet epilogue.",
+						"The electricity leaves the storm system gradually.",
+						"The rainfall becomes the storm's last remaining feature.",
+						"The tempest forgets its violence but not its purpose.",
+						"The thunder stops, and the rain remembers how to be rain.",
+					],
+					drought: [
+						"The storm burns itself out without yielding rain.",
+						"Lightning strikes start fires in the tinder-dry landscape.",
+						"The thunder rumbles away, taking all moisture with it.",
+						"The electrical storm evaporates more than it precipitates.",
+						"The tempest leaves the earth drier than it found it.",
+						"The transition from storm to drought happens cruelly fast.",
+						"The lightning sucks humidity from the air as it departs.",
+						"The thunder's departure leaves only cracked earth behind.",
+						"The storm aborts itself mid-fury, leaving no trace.",
+						"The electrical activity bakes the ground rather than waters it.",
+						"The tempest teases rain but delivers only more aridity.",
+						"The storm's energy dissipates into the thirsty atmosphere.",
+						"Lightning rods glow red-hot without any cooling rain.",
+						"The thunder sounds hollow as the drought reasserts itself.",
+						"The storm becomes just a heat source in the end.",
+						"The electrical display leaves the earth panting for water.",
+						"The tempest's passing makes the drought feel even worse.",
+						"The lightning leaves behind smoke but no puddles.",
+						"The thunder's echo is the last moisture in the air.",
+						"The storm becomes a dry electrical fire in the sky.",
+					],
+					tornado: [
+						"The thunderstorm spawns a deadly funnel cloud.",
+						"Rotation develops within the electrically charged clouds.",
+						"The storm organizes its chaos into a single deadly point.",
+						"The thunder becomes the tornado's war cry.",
+						"Lightning illuminates the forming funnel in strobe flashes.",
+						"The transition from thunderstorm to tornado is terrifying.",
+						"The electrical energy focuses into rotational energy.",
+						"The storm trades lightning for lethal wind shear.",
+						"The thunder becomes the tornado's constant background roar.",
+						"The tempest graduates from impressive to deadly.",
+						"The lightning now serves only to light the tornado's work.",
+						"The storm's energy converts from electrical to kinetic.",
+						"The thunder sounds different now - more focused, more deadly.",
+						"The electrical storm becomes a wind storm mid-tempest.",
+						"The tornado forms where lightning struck most frequently.",
+						"The storm forgets how to spark and remembers how to spin.",
+						"The thunder becomes the soundtrack to the funnel's dance.",
+						"The lightning now forks around the tornado like a halo.",
+						"The tempest's violence becomes organized rather than random.",
+						"The storm finally understands what it wants to destroy.",
+					],
+					weird: [
+						"The lightning starts branching in impossible directions.",
+						"Thunder begins echoing before the lightning flashes.",
+						"The storm's electrical activity forms geometric patterns.",
+						"Lightning strikes freeze mid-arc like glowing sculptures.",
+						"The thunder starts sounding like distorted voices.",
+						"The transition from thunder to weird is deeply unsettling.",
+						"The lightning begins moving in slow motion.",
+						"Thunderclaps arrive in perfect rhythmic sequences.",
+						"The storm's electricity starts glowing different colors.",
+						"The tempest develops an eye like a hurricane would.",
+						"Lightning starts striking upward from the ground.",
+						"The thunder begins harmonizing with itself in echoes.",
+						"The electrical storm starts ignoring physics entirely.",
+						"Lightning forms persistent tendrils between clouds and earth.",
+						"The thunder sounds like it's coming from inside the head.",
+						"The storm begins rotating around a central vertical axis.",
+						"Lightning starts arcing between raindrops mid-air.",
+						"The thunder develops a melodic quality that shouldn't exist.",
+						"The tempest's electricity starts behaving like liquid.",
+						"The storm forgets it's weather and becomes something else.",
+					]
+				},
+			    tornado: {
+					tornado: [
+						"The tornado's roar drowns out all other sounds as it intensifies.",
+						"Debris orbits the funnel at lethal speeds in a deadly ballet.",
+						"The twister carves fresh scars into the landscape with each pass.",
+						"The funnel cloud pulses like a living thing, growing wider.",
+						"Multiple vortices dance around the main tornado like evil satellites.",
+						"The tornado begins ingesting entire structures into its vortex.",
+						"The pressure drop makes ears pop painfully as it approaches.",
+						"The funnel darkens as it consumes more debris from the ground.",
+						"The tornado's path becomes erratic and unpredictable.",
+						"Ground-level winds accelerate to unimaginable speeds.",
+						"The twister develops an eerie, electric blue glow within its funnel.",
+						"The tornado starts spawning smaller satellite tornadoes.",
+						"The funnel stretches vertically, becoming a monstrous column.",
+						"The tornado's rotation tightens, increasing its destructive power.",
+						"The air becomes filled with a constant hail of projectiles.",
+						"The twister's suction begins uprooting bedrock.",
+						"The tornado starts exhibiting multiple condensation funnels.",
+						"The funnel develops a sinister hourglass shape as it intensifies.",
+						"The tornado's debris field expands to cover half the arena.",
+						"The twister achieves maximum width - over a mile across."
+					],
+					sunny: [
+						"The tornado dissipates as suddenly as it formed, revealing blue sky.",
+						"The funnel cloud weakens and lifts, leaving sunshine in its wake.",
+						"The twister's energy exhausts itself, yielding to calm weather.",
+						"Golden light breaks through as the last funnel remnants vanish.",
+						"The tornado collapses inward on itself, leaving only sunshine.",
+						"The transition from chaos to calm happens shockingly fast.",
+						"The twister's debris falls to earth as the storm clears.",
+						"The tornado lifts like a curtain, revealing undamaged landscape.",
+						"The funnel evaporates mid-air, leaving no trace of its passage.",
+						"The sun bakes away the last moisture from the dissipated tornado.",
+						"The violent winds calm as if someone flipped a switch.",
+						"The tornado's remnants scatter like bad dreams in sunlight.",
+						"The twister unwinds itself into nothingness under the sun's gaze.",
+						"The arena steams where the tornado's rain met hot ground.",
+						"The funnel cloud dissolves like sugar in hot tea.",
+						"The tornado's energy converts to harmless summer warmth.",
+						"The twister forgets how to spin and remembers how to shine.",
+						"The transition leaves the world blinking in sudden sunlight.",
+						"The tornado's departure reveals a landscape transformed.",
+						"The sun reclaims its dominion as the storm surrenders."
+					],
+					cloudy: [
+						"The tornado weakens into mere rotation within the cloud base.",
+						"The funnel lifts back into the clouds, leaving overcast skies.",
+						"The twister's energy disperses into the general cloud cover.",
+						"The tornado exhausts itself against the landscape's resilience.",
+						"The funnel dissipates, but the angry clouds remain.",
+						"The transition from tornado to cloudy is anticlimactic.",
+						"The twister loses organization and becomes random wind.",
+						"The tornado's rotation spreads out into general cloud movement.",
+						"The funnel retreats back into the mother cloud reluctantly.",
+						"The tornado forgets its purpose and becomes simple overcast.",
+						"The twister's debris falls gently from weakening rotation.",
+						"The tornado leaves the sky bruised but no longer violent.",
+						"The funnel dissolves into the clouds like cream in coffee.",
+						"The tornado's energy redistributes through the cloud layer.",
+						"The twister becomes just another weather pattern again.",
+						"The transition leaves the world in meteorological limbo.",
+						"The tornado forgets how to destroy and remembers how to drift.",
+						"The funnel's remnants linger as wisps in the cloud cover.",
+						"The tornado's departure leaves only sullen gray behind.",
+						"The twister becomes memory while its clouds remain."
+					],
+					rainy: [
+						"The tornado's rotation slows, converting to heavy rainfall.",
+						"The funnel collapses into a curtain of torrential rain.",
+						"The twister's energy transforms into a downpour.",
+						"The tornado forgets how to spin and remembers how to rain.",
+						"The funnel dissolves into a million falling droplets.",
+						"The transition from tornado to rain is surprisingly gentle.",
+						"The twister's debris becomes floating flotsam in new puddles.",
+						"The tornado's violence converts to water's persistence.",
+						"The funnel unwinds itself into a spiral of falling rain.",
+						"The tornado becomes just another rainstorm mid-tempest.",
+						"The twister's rotation spreads out into general rainfall.",
+						"The tornado leaves its mark in newly formed streams.",
+						"The funnel's energy disperses into the falling precipitation.",
+						"The tornado forgets wind and remembers water.",
+						"The transition leaves the world dripping rather than broken.",
+						"The twister's remnants flow away with the runoff.",
+						"The tornado becomes a footnote in the rain's story.",
+						"The funnel's collapse creates instant rivers on the ground.",
+						"The tornado's departure leaves the arena washed clean.",
+						"The twister dissolves into the rhythm of falling rain."
+					],
+					drought: [
+						"The tornado sucks all moisture from the air as it dissipates.",
+						"The funnel evaporates mid-rotation, leaving parched earth.",
+						"The twister's passage bakes the ground drier than before.",
+						"The tornado leaves behind cracked earth where it last touched down.",
+						"The funnel's collapse creates instant drought conditions.",
+						"The transition from tornado to drought is brutally fast.",
+						"The twister's winds scour moisture from the landscape.",
+						"The tornado becomes a desiccating column rather than a wet one.",
+						"The funnel's energy converts to heat rather than rain.",
+						"The tornado leaves the earth gasping for water.",
+						"The twister's debris becomes dust before hitting the ground.",
+						"The tornado's suction pulls humidity from the entire arena.",
+						"The funnel dissipates into the thirsty atmosphere.",
+						"The tornado's passage creates instant cracked earth.",
+						"The twister becomes a weapon of drought rather than wind.",
+						"The transition leaves plants wilted in its aftermath.",
+						"The tornado's winds bring heat rather than cooling rain.",
+						"The funnel's collapse sucks all moisture upward.",
+						"The tornado leaves the landscape thirstier than before.",
+						"The twister's energy bakes rather than waters."
+					],
+					thunder: [
+						"The tornado's rotation electrifies, becoming a thunderstorm.",
+						"The funnel dissipates as lightning takes over the sky.",
+						"The twister's energy converts to electrical rather than kinetic.",
+						"The tornado forgets wind and remembers lightning.",
+						"The funnel collapses into a barrage of thunderbolts.",
+						"The transition from tornado to thunder is dazzling.",
+						"The twister's debris becomes lightning rods for new strikes.",
+						"The tornado's rotation spreads out into electrical activity.",
+						"The funnel's energy discharges in a massive thunderclap.",
+						"The tornado becomes just the prelude to an electrical storm.",
+						"The twister's winds calm as the thunder takes center stage.",
+						"The tornado leaves behind charged air perfect for lightning.",
+						"The funnel's collapse creates a power vacuum filled by thunder.",
+						"The tornado forgets destruction and remembers illumination.",
+						"The transition leaves the world crackling rather than spinning.",
+						"The twister's remnants become paths for electrical discharge.",
+						"The tornado's energy converts to pure atmospheric electricity.",
+						"The funnel's departure makes way for nature's light show.",
+						"The tornado becomes the thunderstorm's opening act.",
+						"The twister dissolves into a web of lightning forks."
+					],
+					weird: [
+						"The tornado starts spinning in perfect geometric patterns.",
+						"The funnel develops impossible right-angle turns.",
+						"The twister begins lifting objects without dropping them.",
+						"The tornado starts glowing with an eerie inner light.",
+						"The funnel begins moving in precise zig-zag patterns.",
+						"The transition from tornado to weird is deeply unsettling.",
+						"The twister starts emitting a low, harmonic hum.",
+						"The tornado's debris field organizes into strange shapes.",
+						"The funnel begins changing colors like a celestial light show.",
+						"The tornado starts spinning different directions simultaneously.",
+						"The twister's winds begin moving in pulsating waves.",
+						"The tornado develops multiple eyes like a hurricane.",
+						"The funnel starts producing localized weather in its vortex.",
+						"The tornado's rotation speed fluctuates impossibly fast.",
+						"The twister begins affecting gravity in its immediate area.",
+						"The transition leaves conventional physics behind.",
+						"The tornado starts appearing and disappearing in segments.",
+						"The funnel develops a crystalline structure mid-rotation.",
+						"The tornado begins manipulating light around its periphery.",
+						"The twister becomes less a storm and more a phenomenon."
+					]
+					},
+				weird: {
+					weird: [
+						"The sky pulses like a living organism above the arena.",
+						"Rain falls sideways while shadows point in wrong directions.",
+						"Gravity fluctuates randomly - some raindrops float upward.",
+						"The clouds form impossible fractal patterns that hurt to observe.",
+						"Time stutters - a lightning bolt hangs frozen mid-strike.",
+						"The horizon bends upward at the edges like a giant fishbowl.",
+						"Colors shift hue gradually across the visible spectrum.",
+						"The air tastes like burnt copper and smells like violets.",
+						"Sounds arrive before their sources make any movement.",
+						"The moon appears at noon, glowing with impossible clarity.",
+						"Multiple suns blink in and out of existence overhead.",
+						"The wind whispers in languages no one recognizes but somehow understands.",
+						"Objects cast two shadows that move independently.",
+						"The clouds begin rotating in perfect geometric formations.",
+						"The air develops visible currents like liquid glass.",
+						"All weather stops momentarily - not even air molecules move.",
+						"The sky fragments into tessellated sections showing different weather.",
+						"Light bends around invisible spheres in the atmosphere.",
+						"The laws of thermodynamics seem to be optional.",
+						"Reality itself appears to be rendering at low resolution."
+					],
+					sunny: [
+						"The sun stabilizes from its pulsing state to normal brilliance.",
+						"The second sun winks out of existence, leaving just one.",
+						"Gravity reasserts itself, dropping floating objects gently.",
+						"The sky's purple hue bleeds away to normal blue.",
+						"The sun's cold fire returns to familiar warmth.",
+						"The horizon flattens back to conventional geometry.",
+						"Multiple overlapping shadows merge back into single forms.",
+						"The air stops tasting like metal and returns to neutral.",
+						"Time resumes its normal flow as the weirdness dissipates.",
+						"The sun's impossible growth reverses to proper proportions.",
+						"The sky's mosaic pattern dissolves into uniform blue.",
+						"The humming in the air fades below hearing thresholds.",
+						"Light stops bending unnaturally around invisible objects.",
+						"The sun's black spots vanish without trace or explanation.",
+						"The air's viscosity returns to normal breathing conditions.",
+						"The second set of shadows melts into the ground.",
+						"The sun's pulsing rhythm stabilizes to constant brightness.",
+						"The sky's fishbowl distortion corrects itself with a snap.",
+						"Parallel dimensions stop leaking into the visible spectrum.",
+						"The world remembers how to be normal again."
+					],
+					cloudy: [
+						"The fractal clouds reorganize into normal cumulus formations.",
+						"The glowing mist condenses into regular fog banks.",
+						"The geometric cloud patterns dissolve into random shapes.",
+						"The sky's impossible colors fade to standard gray.",
+						"The floating water droplets join together into normal clouds.",
+						"The tessellated sky sections merge into uniform overcast.",
+						"The clouds stop rotating in perfect circles and just drift.",
+						"The air's prismatic effects settle into normal diffusion.",
+						"The whispering winds forget their alien language.",
+						"The pulsating cloud cover stabilizes to normal movement.",
+						"The crystalline cloud structures melt into amorphous forms.",
+						"The sky's mosaic repairs itself into standard cloud cover.",
+						"The clouds forget their impossible formations and just be.",
+						"The air's refractive index returns to earthly norms.",
+						"The hovering ice crystals decide to fall normally again.",
+						"The clouds' bioluminescence fades to regular shading.",
+						"The sky's segmented weather unifies into simple overcast.",
+						"The atmosphere stops acting like a non-Newtonian fluid.",
+						"The clouds abandon their perfect symmetry for natural chaos.",
+						"The world settles for merely cloudy instead of reality-bending."
+					],
+					rainy: [
+						"The floating water droplets remember they should fall.",
+						"The upside-down rain flips to conventional precipitation.",
+						"The rainbow-colored rain bleeds back to normal clarity.",
+						"The whispering rainfall forgets its secret messages.",
+						"The geometric rain patterns dissolve into random droplets.",
+						"The rain stops falling in perfect synchronization.",
+						"The crystalline water structures melt into normal drops.",
+						"The rain's metallic sheen washes away to transparency.",
+						"The pulsing downpour settles into steady rhythm.",
+						"The rain forgets how to flow upward and falls properly.",
+						"The tessellated storm cells merge into normal rainfall.",
+						"The rain's harmonic humming fades below hearing range.",
+						"The glowing droplets extinguish their inner light.",
+						"The rain's impossible viscosity returns to water norms.",
+						"The floating puddles decide to obey gravity again.",
+						"The rain stops appearing in discrete cubic volumes.",
+						"The rainbow-hued precipitation blends back to clear.",
+						"The whispering storm forgets its alien vocabulary.",
+						"The rain's perfect surface tension breaks naturally.",
+						"The weather remembers how to be normally wet again."
+					],
+					drought: [
+						"The floating sand particles suddenly remember gravity.",
+						"The whispering desert winds lose their alien voices.",
+						"The geometric drought patterns dissolve into random cracks.",
+						"The air's crystalline dryness shatters into normal aridity.",
+						"The pulsating heat waves stabilize to normal mirages.",
+						"The tessellated dry zones merge into uniform drought.",
+						"The drought forgets its perfect fractal expansion.",
+						"The air's refractive distortions settle into normal heat haze.",
+						"The singing sands fall silent under conventional dryness.",
+						"The glowing desert particles extinguish their light.",
+						"The drought's impossible speed slows to natural progression.",
+						"The hyper-dry air pockets reintegrate with the atmosphere.",
+						"The crack patterns abandon their sacred geometry.",
+						"The air stops tasting like powdered glass and copper.",
+						"The drought's boundaries stop moving like living things.",
+						"The whispering wasteland forgets its dead languages.",
+						"The pulsating dry zones stabilize to normal conditions.",
+						"The crystalline air structures melt into normal dryness.",
+						"The drought's alien intelligence seems to lose interest.",
+						"The world settles for merely dry instead of eldritch."
+					],
+					thunder: [
+						"The frozen lightning bolts suddenly remember how to move.",
+						"The whispering thunder finds its normal voice again.",
+						"The geometric storm patterns dissolve into natural chaos.",
+						"The sky's impossible electrical colors fade to normal flashes.",
+						"The backward lightning strikes start moving properly again.",
+						"The tessellated storm cells merge into normal thunderheads.",
+						"The thunder forgets its harmonic musical qualities.",
+						"The air's crystalline charge dissipates into normal static.",
+						"The pulsating electrical storm stabilizes to natural rhythms.",
+						"The lightning stops branching in perfect fractal patterns.",
+						"The glowing discharge particles extinguish their light.",
+						"The thunder's impossible echoes return to normal acoustics.",
+						"The storm's alien intelligence seems to depart.",
+						"The air stops smelling like ozone and burnt roses.",
+						"The lightning's slow-motion effects speed to normal.",
+						"The whispering stormfront forgets its secret knowledge.",
+						"The pulsating electrical activity stabilizes to normal storms.",
+						"The crystalline charge structures melt into natural electricity.",
+						"The thunder's perfect synchronization breaks randomly.",
+						"The weather remembers how to be normally frightening again."
+					],
+					tornado: [
+						"The floating debris suddenly remembers how gravity works.",
+						"The whispering winds lose their unnatural harmonic tones.",
+						"The geometric wind patterns dissolve into natural chaos.",
+						"The tornado's impossible colors fade to normal grays and blues.",
+						"The reverse-spinning funnel corrects its rotation suddenly.",
+						"The tessellated vortex merges into a single normal funnel.",
+						"The tornado forgets its perfect mathematical precision.",
+						"The air's crystalline structures shatter into normal winds.",
+						"The pulsating rotation stabilizes to natural tornado speeds.",
+						"The hovering projectiles decide to obey physics again.",
+						"The glowing funnel particles extinguish their eerie light.",
+						"The tornado's impossible movements become merely dangerous.",
+						"The storm's alien awareness seems to dissipate.",
+						"The air stops tasting like electricity and burnt honey.",
+						"The tornado's slow-motion effects accelerate to real-time.",
+						"The whispering vortex forgets its ancient secrets.",
+						"The pulsating winds stabilize to normal cyclonic patterns.",
+						"The crystalline air formations melt into natural turbulence.",
+						"The tornado's perfect symmetry breaks into normal asymmetry.",
+						"The weather remembers how to be normally destructive again."
+					]
+				}
+					
+
+				}
+
+			G.getWeatherTransitionString = function(oldWeather, newWeather) {
+				// If you can see the HUGE dict above, you'll know what this does lol
+				if (oldWeather === newWeather) {
+					return c(weather_transitions[oldWeather][oldWeather]);
+				} else {
+					return c(weather_transitions[oldWeather][newWeather]);
+				}
+			}
+			G.getWeatherSettings = function() {
+				// Used for initialising the weather
+				var initialWeather = l('initialWeather').value;
+				var changeFreq = l('weatherChangeFreq').value;
+				
+				// If random is selected, choose a random weather (excluding "weird" unless you want it included)
+				if (initialWeather === 'random') {
+					var weatherOptions = ['sunny', 'cloudy', 'rainy', 'drought', 'thunder', 'tornado'];
+					initialWeather = c(weatherOptions);
+				}
+				var initialWeatherString = G.getWeatherTransitionString(initialWeather,initialWeather);
+				var boxcol = weatherStates[initialWeather].col;
+				var initialWeatherIcon = weatherStates[initialWeather].icon;
+				return {
+					current: initialWeather,
+					current_string: initialWeatherString,
+					changeFreq: changeFreq,
+					col: boxcol,
+					icon: initialWeatherIcon
+				};
+			};
+
+			// Modify your weather state change logic to use these settings
+			G.changeWeather = function(currentWeather) {
+				var settings = G.weatherSettings;
+				
+				// Handle no changes case
+				if (settings.changeFreq === 'none') {
+					return 0;
+				}
+				
+				// Check if weather should change this round
+				var changeChance = weatherStates[currentWeather].chance;
+				
+				// Adjust change chance based on settings
+				switch(settings.changeFreq) {
+					case 'low': changeChance *= 0.5; break;
+					case 'high': changeChance *= 1.5; break;
+					case 'always': changeChance = 1; break;
+					// 'default' uses the original chance
+				}
+				
+				// If weather doesn't change, return current
+				if (Math.random() > changeChance) {
+					return 0;
+				}
+				
+				// Otherwise, determine new weather
+				var rand = Math.random();
+				var possibilities = weatherStates[currentWeather].possibilities;
+				
+				for (var weather in possibilities) {
+					if (rand <= possibilities[weather]) {
+						return weather;
+						
+					}
+				}
+				
+				// Fallback (shouldn't happen if possibilities are set up correctly)
+				return 0;
+			};
+
+		G.ShowTheWeather=function(){
+			var weatherdiv = l("ShowWeather")
+			var weathericon = l("WeatherIcon")
+			weathericon.innerHTML = `<img src="${weatherStates[G.weatherSettings.current].icon}" style="height:24px;width;24px;" title="${G.weatherSettings.current} Icon"/>`
+			weatherdiv.innerHTML = G.weatherSettings.current_string
+		}
 		
 		G.viewDetails=function()
 		{
@@ -1441,10 +2754,11 @@ G={
 		G.start = function()
 		{
 			G.started = true;
+			// Sort out weather and animals before we move onto characters
+			// Move if you fancy (CTRL+F: weather and animals)
+			G.weatherSettings = G.getWeatherSettings();
 			G.setupData = G.exportSetup(-1);
-			
 			G.deaths = 0;
-			
 			var teams = G.teams;
 			G.teams = [];
 			G.chars = [];
@@ -5560,10 +6874,10 @@ G={
 				if (this.has('marksmen')) { pow *= 0.8; }
 				if (this.has('frenzied')) { pow *= 0.6; }
 				if (this.has('determined')) { pow *= 0.7; }
-
+				console.log(chance)
 				return 1 - Math.pow(1 - chance, pow);
 			};
-			G.adjustFuncs.stabDamage = function(chance) {
+			G.adjustFuncs.stabDamage = function(chance) { 
 				//mainly about accuracy of stabbing vital organs; more pow = better
 				let pow = 1;
 				if (this.has('bulky')) { pow += 0.2; }
@@ -8041,7 +9355,15 @@ G={
 				
 				
 				var str='';
-				
+				// WEATHER CHANGING
+				var new_weather = G.changeWeather(G.weatherSettings.current);
+				if (new_weather != 0) {
+					// Weather Transition!!
+					// So proud of it :)
+					G.weatherSettings.current_string = G.getWeatherTransitionString(G.weatherSettings.current,new_weather);
+					G.weatherSettings.current = new_weather;
+				}
+				G.ShowTheWeather()
 				for (let i in G.teams){G.teams[i].acted=false;}
 				for (let i in G.chars){G.chars[i].acted=false;}
 				for (let i in G.ongoingCombats) { if (G.ongoingCombats[i].processed) { G.ongoingCombats[i].processed = false; G.ongoingCombats[i].roundCount++; G.ongoingCombats[i].clearOut(); G.ongoingCombats[i].addBox('Continuing the fight from last round, with [ALL]...', deepArrCopy(G.ongoingCombats[i].participants), true); } }
@@ -8333,9 +9655,7 @@ G={
 			}
 			
 			l('main').innerHTML=`
-				<div class="box red" id="summary">
-					<div>A horrible struggle for survival is taking place.</div>
-				</div>
+
 				<div style="text-align:left;overflow:hidden;"><div class="button" id="backToCreator">&lt; Go back to team setup</div><div class="button" id="exportSetup">Export initial setup...</div><span style="float:right;"><div class="button" id="viewDetails">Details...</div><div class="button" id="nextRound2">Next round &gt;</div></span></div>
 				<header id="roundN"></header>
 				<div style="height:23px;margin-top:-30px;margin-bottom:11px;clear:both;overflow:hidden;">
@@ -8343,6 +9663,10 @@ G={
 					<div class="button" id="logBack" style="float:left;">&lt; View previous round</div>
 					<div class="button" id="logForwardFull" style="float:right;">&gt; &gt;</div>
 					<div class="button" id="logForward" style="float:right;">View next round &gt;</div>
+				</div>
+				<div style="text-align:center;margin-bottom:10px" class="box ${weatherStates[G.weatherSettings.current].col}" id="summary">
+					<div  id="WeatherIcon"></div>
+					<div  id="ShowWeather"></div>
 				</div>
 				<div id="round"></div>
 				<div class="box" id="deadThisRound" style="display:none;text-align:center;background:rgba(0,0,0,0.5);"></div>
@@ -8412,7 +9736,7 @@ G={
 			G.nextRound();
 		}
 		
-		G.autoroundOn=false;
+		G.autoroundOn=true;
 		G.autoroundT=100;
 		G.autoround=function(t)
 		{
