@@ -3333,6 +3333,9 @@ G={
 							else if (this.type == 'team') { return cNegate(actualFalse, G.testVariableCond(this.charsDead, amount)); }
 							else { return actualFalse; }
 						}
+						if (key == 'w') {
+							return cNegate(actualFalse, G.weatherSettings.current == amount);
+						}
 						if (key == 'func') {
 							const toPass = amount.split('#')[1];
 							return cNegate(actualFalse, (Math.random() < G.fitFuncs[amount.split('#')[0]].call(this, toPass)));
@@ -3383,6 +3386,8 @@ G={
 								> this many in the team must be dead
 							'teamdeaths:3' 'teamdeaths:<3' 'teamdeaths:>3'
 								> this many in the team must be dead
+							'w:cloudy'
+								> weather must be this
 							'+'
 								> must be the same team as the previous team/person selected (separated to others via AND)
 							'='
