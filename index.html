@@ -4446,14 +4446,15 @@ G={
 				new G.act(perkAttackMult*attackFail*0.3,[hesitentKiller+' pet_tiger !animal_ken%0.5|sociopath%0.5|survivalist%0.2|rich%0.2','- any animal_ken%0.8|peaceful%0.2|kind%0.2|rich%0.2 !meek%0.2|naive%0.2|cowardly%0.2'],`[1] sics [1:their] pet tiger on [2]!<br>[2] [never breaks eye contact with|never turns [2:their] back to|avoids getting caught by] the [apex|deadly|massive] [predator|carnivore|striped feline|beast] until the tiger finally loses interest and leaves.`);
 			
 			// Injury Events
-			var healthMinor='bulky%0.3|stubborn%0.3|plot_armor%0.2|any%0.5 !scratched%0.2|bruised%0.2|sick%0.2|dizzy%0.2';
-			var healthModerate='bulky%0.2|stubborn%0.2|plot_armor%0.4|any%0.5 !cut_up%0.3|broken%0.3|shot%0.3|singed%0.3';
-			var healthMajor='bulky%0.1|stubborn%0.1|plot_armor%0.6|any%0.5 !bleeding_out%0.5|burnt%0.5|missing_arm%0.5|missing_leg%0.5|badly_poisoned%0.5';
-			
-			var healthRecover=2;
-			var healthWorsen=0.5;
-			var healthHeal=2;
-			var healthDeath=0.75;
+			var healthMinor = 'bulky%0.3|stubborn%0.3|plot_armor%0.2|any%0.5 !scratched%0.2|bruised%0.2|sick%0.2|dizzy%0.2';
+			var healthModerate = 'bulky%0.2|stubborn%0.2|plot_armor%0.4|any%0.5 !cut_up%0.3|broken%0.3|shot%0.3|singed%0.3';
+			var healthMajor = 'bulky%0.1|stubborn%0.1|plot_armor%0.6|any%0.5 !bleeding_out%0.5|burnt%0.5|missing_arm%0.5|missing_leg%0.5|badly_poisoned%0.5';
+
+			var healthMult = 2;
+			var healthRecover = healthMult * 2;
+			var healthWorsen = healthMult * 0.5;
+			var healthHeal = healthMult * 2;
+			var healthDeath = healthMult * 0.75;
 
 			var createRevivalChanceFunc = function(chance) {
 				return function() {
