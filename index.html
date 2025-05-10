@@ -1516,7 +1516,7 @@ G={
 					"col":"blue",
 					"icon":"https://flowiz.moe/mashwet/toenado_icon.png" // haha orteil reference
 				},// Weird -> Sunny, Cloudy, Rainy, Drought, Thunder, Tornado, Weird
-				"weird:":{
+				"weird":{
 					"chance": 0.5,
 					"possibilities":{
 						"sunny": 0.17,
@@ -3360,11 +3360,39 @@ G={
 				}
 				G.char.prototype.testCond = conditionTester;
 				G.team.prototype.testCond = conditionTester;
-				G.act.prototype.fit=function(me, toMatch, lastSelected, interactMin, forcePool)
+				G.act.prototype.checkSelf = function(me, toMatch, lastSelected, interactMin) {
+					let prevTeam = lastSelected || 0;
+					let firstTeam = me.team;
+					toMatch = toMatch || deepArrCopy(this.people)[0];
+					let req = toMatch.split(' ');
+					for (let i in req) {
+						req[i] = req[i].split('|');
+					} 
+					let fitANDMe = true;
+					for (let i in req) {
+						let fitORMe = false;
+						let neg = false;
+						if (req[i][0][0] == '!') {
+							neg = true;
+						}
+						for (let ii in req[i]) {
+							if (me.testCond(req[i][ii], prevTeam, firstTeam)) { fitORMe = true; break; }
+						} 
+						if (fitORMe && neg) { fitORMe = false; } else if (!fitORMe && neg) { fitORMe = true; }
+						if (!fitORMe) { fitANDMe = false; break; }
+					} 
+					if (fitANDMe) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+				G.act.prototype.fit = function(me, toMatch, lastSelected, interactMin, forcePool)
 				{
 					/*
 						returns one or more people/team who fit the given conditions
 						the "me" parameter specifies which person/team the first condition must match
+						- optimization: this now assumes that the first condition already matches, check for first condition elsewhere using G.act.prototype.checkSelf
 						ie. ['shotgun lunatic','- meek'] will return a person with the "shotgun" and "lunatic" perks specified by me, and a person who is "meek" and on a different team
 						syntax :
 	  						' '
@@ -3434,35 +3462,13 @@ G={
 
 					if (!me instanceof G.char) { console.log(me); throw 'The above is not an instance of char!'; }
 					
-					let selected = [];
+					let selected = [me];
 					
-					let prevTeam = 0;
+					let prevTeam = me.team;
 					let firstTeam = me.team;
 
 					if (lastSelected) { prevTeam = lastSelected.team; }
-					let req = bigReq[0].split(' ');
-					for (let i in req) {
-						req[i] = req[i].split('|');
-					} 
-					let fitANDMe = true;
-					for (let i in req) {
-						let fitORMe = false;
-						let neg = false;
-						if (req[i][0][0] == '!') {
-							neg = true;
-						}
-						for (let ii in req[i]) {
-							if (me.testCond(req[i][ii], prevTeam, firstTeam)) { fitORMe = true; break; }
-						} 
-						if (fitORMe && neg) { fitORMe = false; } else if (!fitORMe && neg) { fitORMe = true; }
-						if (!fitORMe) { fitANDMe = false; break; }
-					} 
-					if (fitANDMe) {
-						selected.push(me);
-						prevTeam = me.team;
-					} else {
-						return false;
-					}
+					//previous check self code here
 					for (let i=1;i<bigReq.length;i++)
 					{
 						//i is each person in the req
@@ -3719,14 +3725,42 @@ G={
 				new G.act(0.1,['magic_dust analytical|inventor|any%0.2 !naive'],`[1] tries to study [1:their] magic dust [with reason|scientifically|carefully] but its [properties|colors|effects] keep changing`);
 			new G.act(0.2,['roll_of_fabric artist|cute%0.5|any%0.5'],`[1] [wraps [1:themself] in|cuts pieces out of|considers what to make with] [1:their] fabrics.`);
 			// Weather Idling - CS
-			new G.act(1,['w:sunny'],`[1] [stares at the [blazing |shining |overhead |]sun[, almost blinding [1:themself]|]|enjoys the sunlight [bathing|coating] [1:them] in warmth|wishes that this period of gentle weather would last|[despises|hates|dislikes] the uncomfortable [thick, heated air|intense lights|blazing heat[, like a sauna|||]]|rests below the sun|is sunbathing[ naked| barely clothed| face down| face down| face down| smiling| smiling|||]].`);
-			new G.act(1,['w:rainy'],`[1] [feels the raindrops landing on [1:their] [face|hair|hands]|looks up at the crying sky and sighs|holds out a hand to catch some raindrops|sniffles, taking in some cold, moist air|wipes away the water on [1:their] [face|head|hair|body|hands]|closes [1:their] eyes and lets the rain pour over [1:their] [face|body]].`);
-			new G.act(1,['w:cloudy'],`[1] [feels a chilly breeze brushing past [1:them]|stands beneath the low-lying sky|is in a low mood, looking over the gray langscape|examines the cloud-covered sky, wondering when rain will come|is grateful that the sun's oppressive rays are no longer upon [1:them]|finds that this weather reminds [1:them] of Autumn].`);
-			new G.act(1,['w:drought'],`[1] [fears for [1:their] water supplies|is thirsty, but could find no water|picks at the crumbling dirt|is grateful to be near a water source[, however brief it may be|even if not exactly drinkable]|discovers that shades are not very useful against such pure dryness|would love some water right now|always knew that agriculture was a bad idea|attempts to soothe [1:their] scaly skin|uncomfortably tumbles in [1:their] sleep|kicks a large bunch of dust off the ground].`);
-			new G.act(1.5,['w:thunder'],`[1] [shakes from a bout of distant thunder|is shaken awake by a thunderous crash in the distance|lets the downpour wash over [1:them]|had to evacuate the tree that [1:they] were resting under from the present thunderstorm|[shudders|jumps away|is very startled] by a stray lightning bolt hitting atop a [tree|dead branch|dead branch|tall cliff|shack's roof|hanged man]|welcomes this nice change of scenary].`);
-			new G.act(3,['w:tornado'],`[1] [is grateful to be alive|[is trying to find|finds] a hiding spot from the deadly tornado|wonders how [1:they] will avoid this catastrophic weather|tries to run away, as fast as [1:they] can|is rather concerned about the vortex of ascending dust in the distance, but doesn't want to move [1:their] [camp|base|supplies]|wonders when this will end|finds the overpowering winds a bit too chilly for [1:their] liking|covers [1:their] eyes with [1:their] clothes to prevent dust from getting into them|sincerely hopes for the tornado to befall upon [1:their] enemies].`);
-			new G.act(5,['w:weird'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
-				new G.act(5,['w:weird'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf|[1:smallItem]]].`);
+			const weatherIdlingMult = 2.5;
+			new G.act(1.5*weatherIdlingMult,['w:sunny any'],`[1] [stares at the [blazing |shining |overhead |]sun[, almost blinding [1:themself]|]|enjoys the sunlight [bathing|coating] [1:them] in warmth|wishes that this period of gentle weather would last|[despises|hates|dislikes] the uncomfortable [thick, heated air|intense lights|blazing heat[, like a sauna|||]]|rests below the sun|is sunbathing[ naked| barely clothed| face down| face down| face down| smiling| smiling|||]].`);
+			new G.act(1*weatherIdlingMult,['w:rainy any'],`[1] [feels the raindrops landing on [1:their] [face|hair|hands], and [screams|cries|smiles|laughs|murmurs to [1:themself]]|looks up at the crying sky and sighs|holds out a hand to catch some raindrops|sniffles, taking in some cold, moist air|wipes away the water on [1:their] [face|head|hair|body|hands]|closes [1:their] eyes and lets the rain pour over [1:their] [face|body]].`);
+				new G.act(1*weatherIdlingMult,['w:rainy survivalist|analytical%0.5|any%0.2 !naive'],`[1] collects some rain in a [rudimentary bucket|simple container|bucket|newly-dug hole in the ground|cup] for use later.`);
+				new G.act(1*weatherIdlingMult,['w:rainy any artist%0.5|survivalist%0.4|annoying%0.2|any%0.1'],`[1] is annoyed about [the rain staining [1:their clothes]|getting wet|how [1:they] just got soaked|wishes for an umbrella, or something].`);
+				new G.act(1*weatherIdlingMult,['w:rainy devious%0.5|sociopath%0.5|vigilant%0.2|bulky%0.1|any%0.05 !naive'],`[1] realizes that this rain is a perfect cover for [ambushing|killing|dismembering] someone...`);
+				new G.act(1*weatherIdlingMult,['w:rainy survivalist%0.5|inventor%0.5|any%0.5'],`[1] quickly [assembles a [rudimentary tent|simple roof|tiny umbrella]|finds a [tree|cave|crevice|fallen wood]] to protect [1:them] against the rain.`);
+			new G.act(1.5*weatherIdlingMult,['w:cloudy any'],`[1] [feels a chilly breeze brushing past [1:them]|stands beneath the low-lying sky|is in a low mood, looking over the gray langscape|examines the cloud-covered sky, wondering when rain will come|is grateful that the sun's oppressive rays are no longer upon [1:them]|finds that this weather reminds [1:them] of Autumn].`);
+				new G.act(1*weatherIdlingMult,['w:cloudy analytical%0.5|survivalist%0.2|vigilant%0.2|any%0.05'],`[1] analyzes patterns and trends in the clouds, thinking hard about the future.`);
+			new G.act(1*weatherIdlingMult,['w:drought any'],`[1] [fears for [1:their] water supplies|is thirsty, but could find no water|picks at the crumbling dirt|is grateful to be near a water source[, however brief it may be|even if not exactly drinkable]|discovers that shades are not very useful against such pure dryness|would love some water right now|always knew that agriculture was a bad idea|attempts to soothe [1:their] scaly skin|uncomfortably tumbles in [1:their] sleep|kicks a large bunch of dust off the ground|checks [1:their] water supplies].`);
+				new G.act(1*weatherIdlingMult,['w:drought survivalist%0.5|analytical%0.2'],`[1] thinks about ways to get some more water.`);
+				new G.act(1*weatherIdlingMult,['w:drought naive%0.5|suicidal%0.5|hypersomniac%0.3'],`[1] is rather unconcerned about this terrible weather.`);
+				new G.act(1*weatherIdlingMult,['w:drought high_pressure_garden_hose'],`[1] is grateful to have his hose around during such dire times.`);
+				new G.act(1*weatherIdlingMult,['w:drought|any%0.05 haste%0.6|survivalist%0.3|any%0.1'],`[1] fortunately stumbles upon a small spring, coincidentally worth a small fortune at the moment.`);
+			new G.act(2*weatherIdlingMult,['w:thunder any'],`[1] [shakes from a bout of distant thunder|is shaken awake by a thunderous crash in the distance|lets the downpour wash over [1:them]|had to evacuate the tree that [1:they] were resting under from the present thunderstorm|[shudders|jumps away|is very startled] by a stray lightning bolt hitting atop a [tree|dead branch|dead branch|tall cliff|shack's roof|hanged man]|welcomes this nice change of scenary].`);
+				new G.act(1*weatherIdlingMult,['w:thunder analytical%0.5|devious%0.25|sociopath%0.1|will_respawn|any%0.05'],`[1] wonders how [1:they] can use the power of lightning against [1:their] enemies.`);
+				new G.act(1*weatherIdlingMult,['w:thunder any cowardly%0.5|meek%0.4|survivalist%0.3|any%0.15 !suicidal'],`[1] desperately tries to find some sort of shelter against the storm.`);
+				new G.act(1*weatherIdlingMult,['w:thunder any survivalist%0.75|inventor%0.5|any%0.25'],`[1] quickly hacks together a cover against the storm.`);
+				new G.act(1*weatherIdlingMult,['w:thunder any inventor%0.6'],`[1] thinks about constructing a machine to barter with the thunder, but is lacking in supplies.`);
+				new G.act(1*weatherIdlingMult,['w:thunder topaz_on_a_stick'],`[1] holds up [1:their] topaz on a stick toward the sky, unafraid of the storm.`);
+			new G.act(4*weatherIdlingMult,['w:tornado any'],`[1] [is grateful to be alive|[is trying to find|finds] a hiding spot from the deadly tornado|wonders how [1:they] will avoid this catastrophic weather|tries to run away, as fast as [1:they] can|is rather concerned about the vortex of ascending dust in the distance, but doesn't want to move [1:their] [camp|base|supplies]|wonders when this will end|finds the overpowering winds a bit too chilly for [1:their] liking|covers [1:their] eyes with [1:their] clothes to prevent dust from getting into them|sincerely hopes for the tornado to befall upon [1:their] enemies].`);
+				new G.act(2*weatherIdlingMult,['w:tornado survivalist%0.75|any%0.25'],`[1] [finds|constructs|makes] some simple shelter against the windstorm.`);
+				new G.act(2*weatherIdlingMult,['w:tornado cowardly%0.5|meek%0.3|any%0.5 !able%0.5|survivalist|leader'],`[1] [screams in fear|aimlessly runs around in panic|huddles against the ground|cries in desperation|starts praying for [1:their] life], [frightened out of [1:their] minds|feeling completely helpless against the tornado|utterly lost on what to do].`);
+				new G.act(1*weatherIdlingMult,['w:thunder|w:tornado will_respawn|angel_in_a_bottle|bulky%0.2|leader%0.1|invulnerable|ironskin|panacea_pellet able'],`[1] solemnly stands in the raging storm, feeling invincible against any and all dangers.`);
+			new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
+				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
+				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
+				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
+				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
+				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
+				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
+				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
+				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
+				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
+				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
+				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
 
 			// Status Effect Idling - TW
 			// // Minor Status Effects
@@ -4525,10 +4559,10 @@ G={
 			new G.act(healthRecover*0.45,['badly_poisoned any '+healthMajor],`[1] begins recovering from [1:their] severe [poison|toxic] build up, but hasn't fully recovered yet.`,p=>{p[1].lose(`badly poisoned`);p[1].gain('poisoned');});
 				new G.act(healthDeath*1.8,['badly_poisoned any !medicine%0.5|medic%0.5 '+injuredMajor],`[RED][1] [dies|falls|loses] to the [severe poison|toxic buildup] within them.`,p=>{p[1].die(`poison`);});
 			// - Via magical means
-			new G.act(healthHeal*createCriticalHealChanceFunc(0.6),['hot_chocolate injured !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [magical|fragrant] hot chocolate and [drinks|sips on] it, recovering from [1:their] injuries!`,p=>{p[1].has('hot chocolate').uses--; if (p[1].has('hot chocolate').uses <= 0 && Math.random() < 0.4) { p[1].lose('hot chocolate'); } p[1].healInjuries(); });
-			new G.act(healthHeal*createCriticalHealChanceFunc(0.6),['batch_of_cookies ailed !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [delicious|still-hot] batch of cookies and [eats|snacks on] it, alleviating [1:their] ailments!`,p=>{p[1].has('batch of cookies').uses--; if (p[1].has('batch of cookies').uses <= 0 && Math.random() < 0.4) { p[1].lose('batch of cookies'); } p[1].cureAilments(); });
-			new G.act(healthHeal*createCriticalHealChanceFunc(0.3),['cookie_dough ailed !sick !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [raw |]cookie dough and [eats|snacks on] it, alleviating [1:their] ailments!`,p=>{p[1].has('cookie dough').uses--; if (p[1].has('cookie dough').uses <= 0) { p[1].lose('cookie dough'); } p[1].cureAilments(); });
-			new G.act(healthHeal*createCriticalHealChanceFunc(0.3),['cookie_dough ailed !survivalist%0.3 !unconscious|shell-shocked'],`[1] takes out [1:their] [raw |]cookie dough and [eats|snacks on] it, alleviating [1:their] ailments! However, soon after consuming it, [1:they] begin feeling a little sick and nauseous...`,p=>{p[1].has('cookie dough').uses--; if (p[1].has('cookie dough').uses <= 0) { p[1].lose('cookie dough'); } p[1].gain('sick'); p[1].gain('dizzy'); p[1].gain('dazed'); });
+			new G.act(createCriticalHealChanceFunc(healthHeal*0.6),['hot_chocolate injured !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [magical|fragrant] hot chocolate and [drinks|sips on] it, recovering from [1:their] injuries!`,p=>{p[1].has('hot chocolate').uses--; if (p[1].has('hot chocolate').uses <= 0 && Math.random() < 0.4) { p[1].lose('hot chocolate'); } p[1].healInjuries(); });
+			new G.act(createCriticalHealChanceFunc(healthHeal*0.6),['batch_of_cookies ailed !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [delicious|still-hot] batch of cookies and [eats|snacks on] it, alleviating [1:their] ailments!`,p=>{p[1].has('batch of cookies').uses--; if (p[1].has('batch of cookies').uses <= 0 && Math.random() < 0.4) { p[1].lose('batch of cookies'); } p[1].cureAilments(); });
+			new G.act(createCriticalHealChanceFunc(healthHeal*0.3),['cookie_dough ailed !sick !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [raw |]cookie dough and [eats|snacks on] it, alleviating [1:their] ailments!`,p=>{p[1].has('cookie dough').uses--; if (p[1].has('cookie dough').uses <= 0) { p[1].lose('cookie dough'); } p[1].cureAilments(); });
+			new G.act(createCriticalHealChanceFunc(healthHeal*0.3),['cookie_dough ailed !survivalist%0.3 !unconscious|shell-shocked'],`[1] takes out [1:their] [raw |]cookie dough and [eats|snacks on] it, alleviating [1:their] ailments! However, soon after consuming it, [1:they] begin feeling a little sick and nauseous...`,p=>{p[1].has('cookie dough').uses--; if (p[1].has('cookie dough').uses <= 0) { p[1].lose('cookie dough'); } p[1].gain('sick'); p[1].gain('dizzy'); p[1].gain('dazed'); });
 			// - First Aid Self
 			new G.act(healthHeal*0.5,['bruised|sick|dizzy medicine medic%0.8|analytical%0.2|first_aid_kit%0.2|any%0.5'],`[BLUE][1] takes some medication to take the edge off [1:their] pain, feeling better and more clear headed overall.`,p=>{p[1].lose(`bruised`);p[1].lose(`sick`);p[1].lose(`dizzy`);});
 			new G.act(healthHeal*0.5,['cut_up|shot|scratched first_aid_kit%0.8|medic%0.5|medicine%0.2|roll_of_fabric%0.2|any%0.2'],`[BLUE][1] [carefully|calmly|expertly] treats [1:their] own [wounds|lacerations] with what supplies [1:g|he has|she has|they have|it has], stopping any bleeding and preventing future infection.`,p=>{p[1].lose(`shot`);p[1].lose(`cut up`);p[1].lose(`scratched`);});
@@ -4549,13 +4583,13 @@ G={
 
 			// Events for the Dead
             new G.act(healthHeal*0.4,['medic%0.5|leader%0.5|kind%0.5|analytical%0.2|any%0.5 !sociopath%0.8|AED%0.8|survivalist%0.5|devious%0.2|meek%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[1] tries desperately to perform CPR on [2], but [2:they] just won't wake up...`);
-				new G.act(healthHeal*createRevivalChanceFunc(0.075),['medic%0.5|leader%0.2|kind%0.2|analytical%0.2|any%0.2 !sociopath%0.8|AED%0.8|survivalist%0.5|devious%0.2|meek%0.2','+ dead bulky%0.5|stubborn%0.5|survivalist%0.5|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] tries [desperately|calmly|expertly] to perform CPR on [2]...<br>After a few agonizing [seconds|moments|cycles|minutes], [2] begins to breath again!<br>[2] slowly wakes up from death's door, will [2:they] survive?`,p=>{p[2].minimumRevive('CPR', p[1]);});
+				new G.act(createRevivalChanceFunc(healthHeal*0.075),['medic%0.5|leader%0.2|kind%0.2|analytical%0.2|any%0.2 !sociopath%0.8|AED%0.8|survivalist%0.5|devious%0.2|meek%0.2','+ dead bulky%0.5|stubborn%0.5|survivalist%0.5|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] tries [desperately|calmly|expertly] to perform CPR on [2]...<br>After a few agonizing [seconds|moments|cycles|minutes], [2] begins to breath again!<br>[2] slowly wakes up from death's door, will [2:they] survive?`,p=>{p[2].minimumRevive('CPR', p[1]);});
 			new G.act(healthHeal*0.5,['AED medic%0.5|leader%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[BLUE][1] [begins|keeps|tries] using [1:their] AED on [2]...<br>CLEAR!<br>[2] still won't wake up. [1] keeps trying to use CPR and the AED anyway...`);
-				new G.act(healthHeal*createRevivalChanceFunc(0.35),['AED medic%0.8|leader%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.5|stubborn%0.5|survivalist%0.5|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] [begins|keeps|tries] using [1:their] AED on [2]...<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [2] [is woken|comes back from|revives from] the edge of death!`,p=>{p[2].minimumRevive('AED', p[1]);});
-				new G.act(healthHeal*0.2,['AED medic%0.5|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ medic%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [1]'s AED on [3].<br>CLEAR!<br>[3] still won't wake up. [1] and [2] keeps trying to use CPR and the AED anyway...`);
-				new G.act(healthHeal*createRevivalChanceFunc(0.15),['AED medic%0.8|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ medic%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.2|stubborn%0.2|survivalist%0.2|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [1]'s AED on [3].<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [3] [is woken|comes back from|revives from] the edge of death!`,p=>{p[3].minimumRevive('CPR and AED', [p[1], p[2]]);});
-				new G.act(healthHeal*0.1,['medic%0.5|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ AED medic%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [2]'s AED on [3].<br>CLEAR!<br>[3] still won't wake up. [1] and [2] keeps trying to use CPR and the AED anyway...`);
-				new G.act(healthHeal*createRevivalChanceFunc(0.075),['medic%0.8|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ AED medic%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.2|stubborn%0.2|survivalist%0.2|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [2]'s AED on [3].<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [3] [is woken|comes back from|revives from] the edge of death!`,p=>{p[3].minimumRevive('CPR and AED', [p[1], p[2]]);});
+				new G.act(createRevivalChanceFunc(healthHeal*0.35),['AED medic%0.8|leader%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.5|stubborn%0.5|survivalist%0.5|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] [begins|keeps|tries] using [1:their] AED on [2]...<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [2] [is woken|comes back from|revives from] the edge of death!`,p=>{p[2].minimumRevive('AED', p[1]);});
+				new G.act(healthHeal*0.2,['AED medic%0.5|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ medic%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[BLUE][1] and [2] coordinate together to perform CPR and use [1]'s AED on [3].<br>CLEAR!<br>[3] still won't wake up. [1] and [2] keeps trying to use CPR and the AED anyway...`);
+				new G.act(createRevivalChanceFunc(healthHeal*0.15),['AED medic%0.8|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ medic%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.2|stubborn%0.2|survivalist%0.2|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [1]'s AED on [3].<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [3] [is woken|comes back from|revives from] the edge of death!`,p=>{p[3].minimumRevive('CPR and AED', [p[1], p[2]]);});
+				new G.act(healthHeal*0.1,['medic%0.5|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ AED medic%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[BLUE][1] and [2] coordinate together to perform CPR and use [2]'s AED on [3].<br>CLEAR!<br>[3] still won't wake up. [1] and [2] keeps trying to use CPR and the AED anyway...`);
+				new G.act(createRevivalChanceFunc(healthHeal*0.075),['medic%0.8|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ AED medic%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.2|stubborn%0.2|survivalist%0.2|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [2]'s AED on [3].<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [3] [is woken|comes back from|revives from] the edge of death!`,p=>{p[3].minimumRevive('CPR and AED', [p[1], p[2]]);});
 				new G.act(createRevivalChanceFunc(0.1),['wish_ring peaceful%0.5|kind%0.5|the_gift%0.2|medic%0.2|any%0.5 !sociopath|devious%0.8|survivalist%0.8','+ dead !nihil'],`[BLUE][1] wishes [1:they] could see [2] one last time... [1:g|His|Her|Their|Its] wish ring shimmers for a second, and then -<br>...it's a miracle! [2] came back to life!`,p=>{p[2].revive('wish', p[1]);});
 			G.fitFuncs.teamNotAlone = function() {
 				if (!this.team) { 
@@ -4668,6 +4702,7 @@ G={
 			for (var i in G.acts)
 			{
 				var me=G.acts[i];
+				if (!me.text) { console.log(me, G.acts.indexOf(me)); }
 				if ((me.text.split('[').length-1)!=(me.text.split(']').length-1)) console.log(`Warning : brackets in the action "`,me.text,`" do not match.`);
 			}
 			
@@ -4788,7 +4823,7 @@ G={
 			}
 			G.moveDefault.element = new G.element();
 			G.checkReq = function(char, req, lastSelected) {
-				if (!req || !char) { return true; }
+				if (!req || !char || !G.act.prototype.checkSelf(char, req[0], lastSelected)) { return true; }
 				let list = G.act.prototype.fit(char, [].concat(req), lastSelected);
 				if (!list) { return false; } else { return true; }
 			}; //extreme lazy ahhhh (performance can go die)
@@ -5352,6 +5387,7 @@ G={
 					}
 					//if (listNew.length) { console.log(listNew); }
 					
+					if (!G.act.prototype.checkSelf(this, m.req[0], null)) { continue; }
 					let targets = G.act.prototype.fit(this, m.req, null, m.element.interactMin, listNew);
 					if (!targets) { continue; }
 	
@@ -9440,6 +9476,7 @@ G={
 						for (var i in actsList)
 						{
 							var act=actsList[i];
+							if (!act.checkSelf(me)) { continue; }
 							var loops=0;
 							//chances over 1 add the act multiple times to the choice list
 							for (var ii=0;ii<Math.min(randomFloor((typeof act.chance === 'function')?act.chance.call(me):act.chance), 50);ii++)
@@ -9463,7 +9500,7 @@ G={
 						}
 						if (choice)
 						{
-							if (choice.chance!=FORCE) {actsList.splice(actsList.indexOf(choice),1);actsList.push(choice);}//put it back at the end
+							if (choice.chance!=Math.min(FORCE, 50)) {actsList.splice(actsList.indexOf(choice),1);actsList.push(choice);}//put it back at the end
 							//for (var i in actors){actors[i].acted=true;}
 							if (actors.length>=1) actors[0].acted=true;
 							var text=choice.text;
