@@ -169,7 +169,7 @@
 		{background:url(https://orteil.dashnet.org/murdergames/bgBlue.jpg) fixed,rgba(16,54,94,0.5);color:#33e0ff;}
 		.box.blue e{color:#fff;}
 		.box.green
-		{background:url(https://orteil.dashnet.org/murdergames/bgGreen.jpg) fixed,rgba(16,54,94,0.5);color:#5afa85}
+		{background:url(https://i.imgur.com/aiOP5BR.png) fixed,rgba(16,54,94,0.5);color:#5afa85}
 		.box.deathsBox {
 			text-align: center;
 		}
@@ -206,6 +206,9 @@
 			font-size:12px;
 		}
 		
+		#WeatherIcon {
+			position: relative;
+		}
 		e
 		{
 			color:#33e0ff;
@@ -275,8 +278,55 @@
 			display: flex; 
 			justify-content: center; 
 			align-items: center;
+			gap: 6px; /* why wasn't this included before? */
 		}
-		
+		.charDisplay {
+			display: flex;
+			max-height: 54px;
+ 			margin-bottom: 10px;
+			border-radius: 9px;
+			filter: drop-shadow(2px 2px 2px #000);
+			box-shadow: 0px 1px 0px rgba(255,255,255,0.25) inset,0px 0px 0px 1px #000,0px 1px 0px 1px rgba(255,255,255,0.1);
+			background: rgba(0,0,0,0.5);
+			
+		}
+		.charStats {
+			display: flex;
+			padding-right: 1px;
+		}
+		.charStats > * {
+			margin: 0px 2px;
+		}
+		.charBG{
+			position: absolute;
+			height: 24px;
+			width: 70px;
+			
+			border-radius: 12px;
+			left: 56px;
+			top: 3px;
+			z-index: -1;
+			box-shadow: 1px 0px 1px 1px rgba(11, 10, 10, 0.5),0px 1px 0px 1px rgba(255,255,255,0.1);
+  			background: url(https://orteil.dashnet.org/murdergames/friction.png) rgba(189, 189, 189, 0.1);
+		}
+
+		.charTraits {
+			display: flex;
+			gap: 4px;
+			height: 24px; 
+			padding: 0px 4px;
+			padding-right: 6px;
+		}
+		.icon {
+			width: 16px;
+			height: 16px;
+			background-size: cover;
+			background-color: #eee;
+			border-radius: 233px;
+			margin-top:6px;
+			box-shadow: 0px 1px 0px rgba(255,255,255,0.25) inset,0px 0px 0px 1px #000,0px 1px 0px 1px rgba(255,255,255,0.1);
+			filter: drop-shadow(1px 1px 2px #000);
+		}
 		.pic
 		{
 			width:48px;
@@ -315,6 +365,7 @@
 			z-index:10;
 			filter:drop-shadow(2px 2px 2px rgba(0,0,0,0.5));
 			pointer-events:none;
+			bottom: -54px; /* evil hack */
 		}
 		.picSkull:before
 		{
@@ -336,6 +387,7 @@
 			z-index:10;
 			filter:drop-shadow(2px 2px 2px rgba(0,0,0,0.5));
 			pointer-events:none;
+			bottom: -54px; 
 		}
 		.picAngel:before
 		{
@@ -453,10 +505,25 @@
 			90% {transform:scale(0.95,1.05);}
 			100% {transform:scale(1,1);}
 		}
+		#cornertips {
+			position: fixed;
+			bottom: 24px;
+			right: 24px;
+			opacity:0.5;
+		  	-webkit-user-select: none; /* Safari */
+			-ms-user-select: none; /* IE 10 and IE 11 */
+			user-select: none; /* Standard syntax */
+			line-height: 10px;
+			text-align: end;
+		}
+		#cornertips > p {
+			color: #ccc;
+		}
 		</style>
 	</head>
 	<body id="body">
 		<div id="popups"></div>
+		<div id="cornertips"></div>
 		<div id="backToDashnet"><cap><a class="button" href="https://dashnet.org/" target="_blank">&lt; back to DashNet</a> <a class="button" href="https://discordapp.com/invite/cookie" target="_blank">official Discord</a></cap></div>
 		<div id="main"></div>
 		<div id="credits">by <a href="http://orteil.dashnet.org/" target="_blank">Orteil</a>, 2018 | Modded by the Dashnet Forums community</div>
@@ -601,6 +668,43 @@ INTCLN=function(str)
 	return str;
 }
 
+function getIcon(str) {
+	str = str.replaceAll(' ', '_');
+	return "assets/" + str + ".png";
+}
+function saveToLocal(name, obj) {
+	if (typeof(Storage) !== "undefined") {
+		localStorage.setItem("saves:::"+name, JSON.stringify(obj));
+	} else {
+		alert("Sorry, your browser does not support web storage...");
+	}
+}
+function loadFromLocal(name) {
+	if (typeof(Storage) !== "undefined") {
+		return JSON.parse(localStorage.getItem("saves:::"+name));
+	} else {
+		alert("Sorry, your browser does not support web storage...");
+	}
+}
+
+function loadSaves() {
+	if (typeof(Storage) !== "undefined") {
+		let saves = localStorage.getItem("saves:::");
+		if (saves) {
+			saves = saves.split(':::');
+			for (let i = 0; i < saves.length; i++) {
+				if (saves[i] != "") {
+					let obj = JSON.parse(localStorage.getItem("saves:::" + saves[i]));
+					G.glob[saves[i]] = obj;
+				}
+			}
+		}
+	} else {
+		alert("Sorry, your browser does not support web storage...");
+	}
+}
+
+
 G={
 	init:function()
 	{
@@ -665,26 +769,27 @@ G={
 		"countFunc": function, uses its return value for the amount of disabled, injured, or ailed that it counts for (default 1 if it isnt defined, *5 for any hard disables); a type argument is passed into it (string) between "disable", "injury", "ailment", and "out" indicating which function is calling it
   		*/
 		G.glob={type:'trait',def:true};
+		let TRAIT_ASSETS = `assets/traits/`
 		new G.perk({name:`no perk`,desc:`No perk selected.`});
-		new G.perk({name:`leader`,desc:`Capable of bringing people together to accomplish great deeds.`,tier:1});
-		new G.perk({name:`peaceful`,desc:`Has no interest in violence.`,tier:-1});
-		new G.perk({name:`sociopath`,desc:`Will lie, steal and kill at a moment's notice.`,tier:1});
-		new G.perk({name:`kind`,desc:`Will act selflessly and generously to help others.`,tier:0});
-		new G.perk({name:`unstable`,desc:`May snap at any moment.`,tier:1});
-		new G.perk({name:`bulky`,desc:`Capable of both delivering and resisting stronger attacks.`,tier:2});
-		new G.perk({name:`meek`,desc:`Very fragile and physically inept.`,tier:-1});
-		new G.perk({name:`naive`,desc:`Gullible and easy to mislead.`,tier:-1});
-		new G.perk({name:`devious`,desc:`Will manipulate and betray others if given the chance.`,tier:0});
-		new G.perk({name:`seductive`,desc:`Capable of romancing others into doing their bidding.`,tier:0});
-		new G.perk({name:`suicidal`,desc:`Probably won't survive very long.`,tier:-1});
-		new G.perk({name:`cute`,desc:`Everybody likes them! Others may go out of their way to protect them.`,tier:0});
-		new G.perk({name:`annoying`,desc:`Horrible to be around. Tends to get killed off first.`,tier:-1});
-		new G.perk({name:`scrappy`,desc:`Finds more resources than most.`,tier:2});
-		new G.perk({name:`survivalist`,desc:`Strives better alone, and will not let others get in their way.`,tier:2});
-		new G.perk({name:`rich`,desc:`Armed with a large fortune to cater every whim.`,tier:1});
-		new G.perk({name:`inventor`,desc:`Can devise strange machines for various purposes.`,tier:2});
-		new G.perk({name:`goth`,desc:`Channels the dark energies.`,tier:0});
-		new G.perk({name:`lunatic`,desc:`Susceptible to gain and lose random perks regularly.`,tier:0});
+		new G.perk({name:`leader`,desc:`Capable of bringing people together to accomplish great deeds.`,icon:TRAIT_ASSETS,tier:1});
+		new G.perk({name:`peaceful`,desc:`Has no interest in violence.`,icon:TRAIT_ASSETS,tier:-1});
+		new G.perk({name:`sociopath`,desc:`Will lie, steal and kill at a moment's notice.`,icon:TRAIT_ASSETS,tier:1});
+		new G.perk({name:`kind`,desc:`Will act selflessly and generously to help others.`,icon:TRAIT_ASSETS,tier:0});
+		new G.perk({name:`unstable`,desc:`May snap at any moment.`,icon:TRAIT_ASSETS,tier:1});
+		new G.perk({name:`bulky`,desc:`Capable of both delivering and resisting stronger attacks.`,icon:TRAIT_ASSETS,tier:2});
+		new G.perk({name:`meek`,desc:`Very fragile and physically inept.`,icon:TRAIT_ASSETS,tier:-1});
+		new G.perk({name:`naive`,desc:`Gullible and easy to mislead.`,icon:TRAIT_ASSETS,tier:-1});
+		new G.perk({name:`devious`,desc:`Will manipulate and betray others if given the chance.`,icon:TRAIT_ASSETS,tier:0});
+		new G.perk({name:`seductive`,desc:`Capable of romancing others into doing their bidding.`,icon:TRAIT_ASSETS,tier:0});
+		new G.perk({name:`suicidal`,desc:`Probably won't survive very long.`,icon:TRAIT_ASSETS,tier:-1});
+		new G.perk({name:`cute`,desc:`Everybody likes them! Others may go out of their way to protect them.`,icon:TRAIT_ASSETS,tier:0});
+		new G.perk({name:`annoying`,desc:`Horrible to be around. Tends to get killed off first.`,icon:TRAIT_ASSETS,tier:-1});
+		new G.perk({name:`scrappy`,desc:`Finds more resources than most.`,icon:TRAIT_ASSETS,tier:2});
+		new G.perk({name:`survivalist`,desc:`Strives better alone, and will not let others get in their way.`,icon:TRAIT_ASSETS,tier:2});
+		new G.perk({name:`rich`,desc:`Armed with a large fortune to cater every whim.`,icon:TRAIT_ASSETS,tier:1});
+		new G.perk({name:`inventor`,desc:`Can devise strange machines for various purposes.`,icon:TRAIT_ASSETS,tier:2});
+		new G.perk({name:`goth`,desc:`Channels the dark energies.`,icon:TRAIT_ASSETS,tier:0});
+		new G.perk({name:`lunatic`,desc:`Susceptible to gain and lose random perks regularly.`,icon:TRAIT_ASSETS,tier:0});
 
 		//inventir synergy
 		//pyro synergy
@@ -698,20 +803,20 @@ G={
 		//instead of "a horrible struggle for survival is taking place" every time have something different depending on the amount of blue, green, or red boxes parsed
 		
 		// Additional Traits
-		new G.perk({name:`medic`,desc:`Knows how to treat illness and injury while preserving life.`,tier:1});
-		new G.perk({name:`marksmen`,desc:`Perceptive and steady handed, skilled at range weapons.`,tier:2});
-		new G.perk({name:`animal ken`,desc:`One with the natural world, animals are drawn to them.`,tier:1});
-		new G.perk({name:`ninja`,desc:`Believes they are a ninja of great finesse, one with the darkness.`,tier:1});
-		new G.perk({name:`stubborn`,desc:`Very strong willed. Will not give up for better or worse.`,tier:1});
-		new G.perk({name:`analytical`,desc:`Prone to thinking through problems and intellectual persuits.`,tier:1});
-		new G.perk({name:`artist`,desc:`Creatively inclined and can be unpredictable.`,tier:1});
-		new G.perk({name:`pyromania`,desc:`Likes fire, like, really likes fire.`,tier:0});
-		new G.perk({name:`cowardly`,desc:`Will avoid direct conflict and hide from danger.`,tier:0});
-		new G.perk({name:`glasses`,desc:`Wears glasses to compensate for their poor eyesight.`,tier:-1});
-		new G.perk({name:`clumsy`,desc:`Prone to injury and dropping things.`,tier:-1});
-		new G.perk({name:`the gift`,desc:`Has a rare supernatural talent and is attracted to the strange.`,tier:2});
+		new G.perk({name:`medic`,desc:`Knows how to treat illness and injury while preserving life.`,icon:TRAIT_ASSETS,tier:1});
+		new G.perk({name:`marksmen`,desc:`Perceptive and steady handed, skilled at range weapons.`,icon:TRAIT_ASSETS,tier:2});
+		new G.perk({name:`animal ken`,desc:`One with the natural world, animals are drawn to them.`,icon:TRAIT_ASSETS,tier:1});
+		new G.perk({name:`ninja`,desc:`Believes they are a ninja of great finesse, one with the darkness.`,icon:TRAIT_ASSETS,tier:1});
+		new G.perk({name:`stubborn`,desc:`Very strong willed. Will not give up for better or worse.`,icon:TRAIT_ASSETS,tier:1});
+		new G.perk({name:`analytical`,desc:`Prone to thinking through problems and intellectual persuits.`,icon:TRAIT_ASSETS,tier:1});
+		new G.perk({name:`artist`,desc:`Creatively inclined and can be unpredictable.`,icon:TRAIT_ASSETS,tier:1});
+		new G.perk({name:`pyromania`,desc:`Likes fire, like, really likes fire.`,icon:TRAIT_ASSETS,tier:0});
+		new G.perk({name:`cowardly`,desc:`Will avoid direct conflict and hide from danger.`,icon:TRAIT_ASSETS,tier:0});
+		new G.perk({name:`glasses`,desc:`Wears glasses to compensate for their poor eyesight.`,icon:TRAIT_ASSETS,tier:-1});
+		new G.perk({name:`clumsy`,desc:`Prone to injury and dropping things.`,icon:TRAIT_ASSETS,tier:-1});
+		new G.perk({name:`the gift`,desc:`Has a rare supernatural talent and is attracted to the strange.`,icon:TRAIT_ASSETS,tier:2});
 		
-		new G.perk({name:`plot armor`,desc:`This character is almost impossible to kill. Not for serious games.`});
+		new G.perk({name:`plot armor`,desc:`This character is almost impossible to kill. Not for serious games.`,icon:TRAIT_ASSETS});
 		new G.perk({name:`nerd`,desc:`Filled to the brim with obscure knowledge and technical gossips.`,tier:-1});
 		new G.perk({name:`vigilant`,desc:`Especially observant and keen.`,tier:2});
 		new G.perk({name:`haste`,desc:`Fast and agile.`,tier:1});
@@ -853,6 +958,7 @@ G={
 		
 		G.glob={type:'item'};
 			G.glob.def=true;
+		let ITEM_ASSETS = `assets/items/`
 		new G.perk({name:`no item`,desc:`No item selected.`});
 		
 		new G.perk({name:`big stick`,desc:`Rather crude, but can bash an unsuspecting enemy just fine.`,tier:0});
@@ -1084,6 +1190,11 @@ G={
 					return true;
 				}
 			}
+			l('cornertips').innerHTML = `
+				<p>Murder Games Community Mod (<span style="color: #33e0ff;">2025</span>).</p>
+				<p>Murder Games made by Orteil.</p>
+				<p>Modded by Truewolves, Cursedsliver, and F.l.0.</p>
+				`
 			l('main').innerHTML= `
 			<div class="box blue">
 				<div><cap>Hey there!</cap></div>
@@ -1099,6 +1210,8 @@ G={
 			<div style="text-align:left;overflow:hidden;">
 				<div class="button" id="importSetup">Import an existing setup...</div> 
 				<div class="button" id="exportSetup">Export this setup...</div>
+				<div class="button" id="saveSetup">Save this setup...</div>
+				<div class="button" id="loadSetup">Load a saved setup...</div>
 				<div style="float:right;">
 					<div class="button" id="start2">Start round 1 &gt;</div>
 				</div>
@@ -1373,6 +1486,7 @@ G={
 				
 				char.l.innerHTML=`
 					<div class="button" style="float:right;" id="${char.l.id+'-delete'}" title="Delete this person">X</div>
+
 					<div class="handle"></div>
 					<div class="picBox"><img src="${char.pic||'defPic.jpg'}" id="${char.l.id+'-pic'}" class="pic"/></div>
 					Name : <input type="text" size="14" id="${char.l.id+'-name'}" value="${char.name}"/> 
@@ -1480,7 +1594,7 @@ G={
 						"weird": 1 // 1%
 					},
 					"col":"blue",
-					"icon":"https://flowiz.moe/mashwet/rainy_icon.png"
+					"icon":"/assets/weather/rain.gif"
 				},
 				"drought":{
 					"chance": 0.2,
@@ -1490,7 +1604,8 @@ G={
 						"thunder": 0.99, // 19%
 						"weird": 1
 					},
-					"col": "red"
+					"col": "red",
+					"icon": "/assets/weather/drought.gif"
 				},
 				"thunder":{
 					"chance": 0.4,
@@ -1502,7 +1617,7 @@ G={
 						"weird": 1
 					},
 					"col":"blue",
-					"icon":"https://flowiz.moe/mashwet/thunder_icon.png"		
+					"icon":"/assets/weather/lightning.gif"		
 				},
 				"tornado":{
 					"chance": 0.5,
@@ -1528,7 +1643,7 @@ G={
 						"weird":1
 					},
 					"col":"green",
-					"icon":"https://flowiz.moe/mashwet/weird_icon.png"
+					"icon":"/assets/weather/weird.gif"
 				}
 			}
 
@@ -2090,26 +2205,15 @@ G={
 						"The drought's memory fades with each falling raindrop."
 					],
 					thunder: [
-						"Dry lightning splits the sky without bringing rain.",
+						"Hot lightning splits the sky, bringing rain.",
 						"Thunder rumbles ominously over the parched landscape.",
-						"The air crackles with static as a dry storm builds.",
-						"Heat lightning flickers on the horizon, promising nothing.",
-						"The drought continues despite the atmospheric drama.",
-						"The transition brings sound and light but no moisture.",
-						"Lightning strikes start small fires in the tinder-dry brush.",
+						"The air crackles with static as a storm builds.",
+						"Heat lightning flickers on the horizon, promising misery.",
+						"Lightning strikes start small fires in the dried brush.",
 						"Thunder echoes across the drought-stricken arena.",
-						"The storm taunts the earth with its withheld rain.",
-						"Electrical activity increases without relieving the dryness.",
-						"The sky puts on a light show but keeps its water to itself.",
-						"Distant thunder mocks the still-parched ground.",
-						"The air smells of ozone but not of coming rain.",
-						"Cloud-to-cloud lightning illuminates the dry night sky.",
-						"The drought persists through the thunder's empty threats.",
-						"The storm's energy dissipates without yielding precipitation.",
-						"Lightning rods the only things drinking from this storm.",
-						"The thunder grows louder but the earth stays dry.",
-						"The electrical storm seems angry at its own impotence.",
-						"The arena watches helplessly as the dry lightning continues."
+						"Storm clouds gather, providing rain relief from the drought.",
+						"The air becomes charged with electricity before the storm.",
+
 					],
 					tornado: [
 						"Dust devils merge into something more dangerous.",
@@ -2701,7 +2805,8 @@ G={
 		G.ShowTheWeather=function(){
 			var weatherdiv = l("ShowWeather")
 			var weathericon = l("WeatherIcon")
-			weathericon.innerHTML = `<img src="${weatherStates[G.weatherSettings.current].icon}" style="height:24px;width;24px;" title="${G.weatherSettings.current} Icon"/>`
+			weathericon.innerHTML = `<img src="${weatherStates[G.weatherSettings.current].icon}" style="position:absolute;height:24px;width;24px;top: 50%;left: 50%;transform: translate(-50%, -50%);filter:drop-shadow(1px 1px 2px rgba(1,1,1,0.25)) drop-shadow(-1px -1px 2px rgba(1,1,1,0.25)) drop-shadow(2px 2px 4px rgba(1,1,1,0.1)) drop-shadow(-2px -2px 4px rgba(1,1,1,0.1));"title="${G.weatherSettings.current} Icon"/><img src="/assets/frame.png" style="z-index:1;position: relative;filter: drop-shadow(1px 1px 2px rgba(1,1,1,0.25)) drop-shadow(-1px -1px 2px rgba(1,1,1,0.25)) drop-shadow(2px 2px 4px rgba(1,1,1,0.1)) drop-shadow(-2px -2px 4px rgba(1,1,1,0.1))"/>
+                                    `
 			weatherdiv.innerHTML = G.weatherSettings.current_string
 		}
 		
@@ -2726,7 +2831,7 @@ G={
 				{
 					var me=team.chars[ii];
 					str+=`
-					<div class="char" style="font-size:12px;">
+					<div class="charDisplay" style="font-size:12px;">
 						<div class="picBox"><img src="${me.pic}" class="pic" title="${me.name}"/>${me.has('dead')?'<div class="picSkull"></div>':''} ${me.has('revived')?'<div class="picAngel"></div>':''}</div>
 						<div style="text-align:center;">
 							<e style="float:left;margin-right:8px;">${me.name}</e>
@@ -2740,8 +2845,9 @@ G={
 					</div>`;
 				}
 				str+=`</div>`;
+				
 			}
-			str+=`</div>`;
+
 			
 			G.popup(str,function(){
 			});
@@ -3333,6 +3439,9 @@ G={
 							else if (this.type == 'team') { return cNegate(actualFalse, G.testVariableCond(this.charsDead, amount)); }
 							else { return actualFalse; }
 						}
+						if (key == 'w') {
+							return cNegate(actualFalse, G.weatherSettings.current == amount);
+						}
 						if (key == 'func') {
 							const toPass = amount.split('#')[1];
 							return cNegate(actualFalse, (Math.random() < G.fitFuncs[amount.split('#')[0]].call(this, toPass)));
@@ -3383,6 +3492,8 @@ G={
 								> this many in the team must be dead
 							'teamdeaths:3' 'teamdeaths:<3' 'teamdeaths:>3'
 								> this many in the team must be dead
+							'w:cloudy'
+								> weather must be this
 							'+'
 								> must be the same team as the previous team/person selected (separated to others via AND)
 							'='
@@ -4974,7 +5085,7 @@ G={
 					let box = arr[i];
 					str += '<div class="box action '+box.color+'"><div class="actionCharContainer">';
 					if (!box.hideChars) { for (let ii in box.charList) {
-						str += '<div style="display: inline-block"><img src="'+box.charList[ii].pic+'" class="pic" '+(box.charList[ii].char.trueTeam?.color?('style="border: 2px solid '+box.charList[ii].char.trueTeam.color+'" '):'')+'title="'+box.charList[ii].char.name+'">';
+						str += '<div class="charDisplay" <div style="display: inline-block"><img src="'+box.charList[ii].pic+'" class="pic" '+(box.charList[ii].char.trueTeam?.color?('style="border: 2px solid '+box.charList[ii].char.trueTeam.color+'" '):'')+'title="'+box.charList[ii].char.name+'"></div>';
 						if (box.charList[ii].char.team?.icon) { str += '<div class="teamIcon" style="background-image: url('+box.charList[ii].char.team.icon+');"></div>'; }
 						if (box.charList[ii].widgets.includes('skull')) { str += '<div class="picSkull"></div>'; }
 						if (box.charList[ii].widgets.includes('angel')) { str += '<div class="picAngel"></div>'; }
@@ -4986,7 +5097,7 @@ G={
 					}
 					str += '</div><div>';
 					str += G.parse(box.text.replaceAll('[S]', ''), realList);
-					str += '</div></div>';
+					str += '</div>';
 				}
 				return str;
 			}
@@ -9465,12 +9576,69 @@ G={
 							}
 							for (var ii in chars)
 							{
-								pics+=`<div class="display: inline-block;"><img src="${chars[ii].pic}" class="pic" ${chars[ii].trueTeam?.color?('style="border: 2px solid '+chars[ii].trueTeam.color+'"'):('')} title="${chars[ii].name}"/>`;
+								pics+=`<div class="charDisplay"><div class="display: inline-block;"><img src="${chars[ii].pic}" class="pic" ${chars[ii].trueTeam?.color?('style="border: 2px solid '+chars[ii].trueTeam.color+'"'):('')} title="${chars[ii].name}"/></div>`;
 								if (chars[ii].team?.icon) { pics += '<div class="teamIcon" style="background-image: url(' + chars[ii].team.icon + ');"></div>'; }
 								if (chars[ii].has('dead')) { pics += `<div class="picSkull"></div>`; }
 								if (chars[ii].has('revived')) { pics += `<div class="picAngel"></div>`; }
-								pics += '</div>';
+								// Add stats
+								console.log(chars[ii]);
+								// Work out grid size ahead of time, 2 column????
+								pics += `<div class="charStats">`;
+								let _traits = "";
+								let _items  = "";
+								let _statuses = "";
+								// Width control
+								let _t = 0;
+								let _i = 0;
+								let _s = 0;
+								const TRAIT_ICONS = ["leader","peaceful","sociopath","kind","unstable","bulky","meek","naive","devious","seductive","suicidal","cute","annoying","scrappy","survivalist","rich","inventor","goth","lunatic","medic","marksman","animal ken","ninja","stubborn", "analytical","artist","pyromania","cowardly","clumsy","glasses","the gift","plot armor"]
+								const ITEM_ICONS = []
+								const STATUS_ICONS = []
+								
+								const URL = "assets"
+								for (let p of chars[ii].perks) {
+									console.log(p);
+									console.log(p.perk.name in TRAIT_ICONS);
+									if (p.perk.type === "trait" && TRAIT_ICONS.includes(p.perk.name)) {
+										if (_traits.length == 0) {
+											_traits += `<div class="charTraits"><div class="charBG" style="width:###TRAITS###"></div>`;
+										}
+										_t ++;
+										_traits += `<img src="${URL}/traits/${p.perk.name}.png" class="icon" title="${p.perk.name}"/>`;
+									}
+									
+									else if (p.perk.type === "item" && p.perk.name in ITEM_ICONS) {
+										if (_items.length == 0) {
+											_items += `<div class="charItems"><div class="charBG"></div>`;
+										}
+										_i ++;
+										_items += `<div class="charItems"><img src="${URL}/items/${p.perk.name}" class="icon" title="${p.perk.name}"/></div>`;
+									}
+
+									else if (p.perk.type === "status" && p.perk.name in STATUS_ICONS) {
+										if (length(_statuses) == 0) {
+											_statuses += `<div class="charStatuses"><div class="charBG"></div>`;
+										}
+										_statuses += `<div class="charStatuses"><img src="${URL}/status/${p.perk.name}.png" class="icon" title="${p.perk.name}"/></div>`;
+									}
+
+								};
+								if (_traits.length > 0) {
+									
+										_traits = _traits.replace('###TRAITS###', `${8+(_t*20)}px`);
+										_traits += `</div>`;
+									}
+								if (_items.length > 0) {
+									_items += `</div>`;
+									}
+								if (_statuses.length > 0) {
+									_statuses += `</div>`;
+								}
+								pics += `${_traits}${_items}${_statuses}`;
+
+								pics += '</div></div>';
 							}
+							// huehuehue
 							str+=`<div class="box action${action.classes?(' '+action.classes):''}"><div class="actionCharContainer">${pics}</div><div>${action.text}</div></div>`;
 						}
 					}
