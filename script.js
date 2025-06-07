@@ -1,4 +1,5 @@
 //script by leo
+//shift + s in order to quick load team setups
 var userData = { chars: [] }
 //first: hd, second: picked off chips, third: free agent
 var messageData = `  - High-definition cookies - it/its - [Charismatic, Leader, Pixelate, Has Fought] - [Panacea Pellet, Panacea Pellet, Vanilla Ice Cream] - ^High-definition_cookie.png
@@ -67,10 +68,16 @@ var messageData = `  - High-definition cookies - it/its - [Charismatic, Leader, 
   - Cookie Clicker - it/its - [] - [A Really Good Guidebook, Cookie Dough, Batch of Cookies, Mint Essence, Hot Chocolate, Panacea Pellet] - ^CookieClicker.png
   - Grandma - she/her - [] - [Pet Lobster, Leather Scraps, Scrap Metal, Roll of Fabric, Gun Parts, Magic Dust] - ^GrandmaPic.png`
 userData.teams = [
-    { name: "NOTEAM" }, 
     { name: "High-definition cookies", color: '#000', icon: 'dashnetGames/High-definition_cookie.png' }, 
-    { name: "A chocolate chip cookie but with the chips picked off for some reason", color: '#fff', icon: 'dashnetGames/A_chocolate_chip_cookie_but_with_the_chips_picked_off_for_some_reason.png' }
+    { name: "A chocolate chip cookie but with the chips picked off for some reason", color: '#fff', icon: 'dashnetGames/A_chocolate_chip_cookie_but_with_the_chips_picked_off_for_some_reason.png' },
+    { name: "NOTEAM" }
 ]
+userData.teamNamesArr = [
+
+]
+for (let i in userData.teams) {
+    userData.teamNamesArr.push(userData.teams[i].name);
+}
 var genderMatch = {
     'he/him': 0,
     'she/her': 1,
@@ -102,7 +109,7 @@ messageData.split("\n===\n").forEach((str, category) => {
             name: split[0], 
             g: genderMatch[split[1]], 
             t: 0, 
-            team: ["High-definition cookies", "A chocolate chip cookie but with the chips picked off for some reason", "NOTEAM"][teamTo], 
+            team: userData.teamNamesArr[teamTo], 
             pic: (split[4][0] == '^')?('dashnetGames/' + split[4].slice(1)):('dashnetGames/tributes/' + split[4]),
             perks: (split[2]!='[]'?split[2].toLowerCase().replace("[", "").replace("]", "").split(", "):[]).concat((split[3]!='[]'?split[3].toLowerCase().replace("[", "").replace("]", "").split(", "):[])) 
         })
