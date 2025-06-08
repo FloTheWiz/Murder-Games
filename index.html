@@ -1145,9 +1145,10 @@ G={
 			// Goldfish evolutions 
 		new G.perk({name:`gyarados`, desc:`Woah! A Gyarados to fight for you`});
 		new G.perk({name:`shiny gyarados`, desc:`A cool red Gyarados from Rage Lake!`})
-		// Egg -> Cracked egg -> Baby chicken | Hawk | Dragon
+		// Egg -> Cracked egg -> Baby chicken | Hawk | Dragon | Dinosaur 
 		new G.perk({name:`pet baby chicken`, desc:`a cute baby chicken to peck your opponents`});
 		new G.perk({name:`pet dragon`, desc:`An awesome pet dragon to smite your foes`});
+		new G.perk({name:`pet dinosaur`, desc:`A pet from a prehistoric time`})
 
 		G.glob={type:'item'};
 			G.glob.def=true;
@@ -4167,33 +4168,51 @@ G={
 			new G.act(0.6,['angel\'s_revival dead !nihil|sheep|pixelated'],'[BLUE]Out of nowhere, a point in the sky begin to glow a glorious golden shine, as a pair of wings grow out of it - carrying [1]! <br>As it turns out, when [1:they] last died, their angel in a bottle shattered, which lead to [1:their] revival.<br>The angel set [1:them] down gently, then hands [1:them] something - another angel in a bottle!',p=>{ p[1].revive('angels'); p[1].lose('angel\'s revival'); p[1].gain('angel in a bottle'); });
 			
 			// Flo's pets 
+			// These odds are all made up on the fly, feel free to add, tweak, etc
 			// Egg crackin :3
 			new G.act(0.8,['mysterious_egg any animal_ken%0.5 !out'],`[BLUE][1] holds [1:their] egg to [1:their] ear, [1:they] hear noises inside!`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
 			new G.act(0.3,['mysterious_egg !out'], `[BLUE][1] begins to hear noises coming from [1:their] egg!`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
-			new G.act(0.4,['mysterious_egg any !out'], `[BLUE][1]'s egg is showing signs of hatching soon!`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
-			new G.act(0.2,['mysterious_egg any'], `[BLUE][1]'s egg wobbles and shakes.`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
-			// These odds are all made up on the fly, feel free to add, tweak, etc
-			new G.act(0.3,['!out cracked_egg animal_ken%0.5 !sociopath!devious'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
+			new G.act(0.3,['mysterious_egg any !out'], `[BLUE][1]'s egg is [starting to make noise|showing signs of hatching soon]!`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
+			new G.act(0.3,['mysterious_egg any'], `[BLUE][1]'s egg [wobbles and shakes|bounces up and down|wriggles and squarks].`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
+			
+			// Baby chicken 
+			new G.act(0.5,['!out cracked_egg animal_ken%0.5 !sociopath !devious'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
+			new G.act(0.4,['!out cracked_egg !sociopath !devious'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
+			new G.act(0.3,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
+			// Hawk
 			new G.act(0.3,['!out cracked_egg animal_ken%0.5 !peaceful'],`[BLUE][1]'s egg hatches into a hawk!`,p=>{p[1].lose('cracked egg');p[1].gain('pet hawk');});
-			new G.act(0.1,['!out cracked_egg animal_ken%0.5 !peaceful'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet_dragon');});
-			new G.act(0.2,['!out cracked_egg !sociopath!devious'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
-			new G.act(0.1,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
-			new G.act(0.2,['!out cracked_egg analytical%0.3|nerd%0.5%|leader%0.3'],`[BLUE][1]'s egg hatches into a hawk!`,p=>{p[1].lose('cracked egg');p[1].gain('pet hawk');});
-			new G.act(0.1,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a hawk!`,p=>{p[1].lose('cracked egg');p[1].gain('pet hawk');});
-			new G.act(0.05,['!out cracked_egg nerd%0.2|meek%0.2|pyromania%0.4'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dragon');});
-			new G.act(0.01,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dragon');});
-
-			new G.act(0.5,['!out has_killed pet_goldfish'],`After battling, [1]'s pet goldfish has reached level 20, and evolved into a Gyarados!`,p=>{p[1].lose('pet goldfish');p[1].gain('gyarados');});
-			new G.act(0.05,['!out has_killed pet_goldfish'],`After battling, [1]'s pet goldfish has reached level 20, and evolved into a Shiny Gyarados!`,p=>{p[1].lose('pet goldfish');p[1].gain('shiny gyarados');});
+			new G.act(0.4,['!out cracked_egg analytical%0.3|nerd%0.5%|leader%0.3'],`[BLUE][1]'s egg hatches into a hawk!`,p=>{p[1].lose('cracked egg');p[1].gain('pet hawk');});
+			new G.act(0.2,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a hawk!`,p=>{p[1].lose('cracked egg');p[1].gain('pet hawk');});
+			// Dragon! 
+			new G.act(0.2,['!out cracked_egg animal_ken%0.5 !peaceful'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet_dragon');});
+			new G.act(0.1,['!out cracked_egg nerd%0.4|meek%0.4|pyromania%0.6'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dragon');});
+			new G.act(0.05,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dragon');});
+			// dinosaur
+			new G.act(0.2,['!out cracked_egg animal_ken%0.5|nerd%0.5|glasses%0.5'],`[BLUE][1]'s egg hatches into a baby dinosaur!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dinosaur');});
+			new G.act(0.1,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a baby dinosaur!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dinosaur');});
+			
+			// goldfish evolution
+			new G.act(0.5,['!out has_killed pet_goldfish'],`[BLUE]After battling, [1]'s pet goldfish has reached level 20, and evolves into a Gyarados!`,p=>{p[1].lose('pet goldfish');p[1].gain('gyarados');});
+			new G.act(0.05,['!out has_killed pet_goldfish'],`[BLUE]After battling, [1]'s pet goldfish has reached level 20, and evolves into a Shiny Gyarados!`,p=>{p[1].lose('pet goldfish');p[1].gain('shiny gyarados');});
 
 			// Flo pet idles 
-
+			// chicken
+			new G.act(0.5,['teamalive:>2 pet_baby_chicken !out', '+ !sociopath', '+ !sociopath'],`[2] and [3] watch as [1]'s baby chicken does a cool dance.`)
+			new G.act(0.3,['pet_baby_chicken !out', '+ !sociopath'], `[1] lets [2] pet [1:their] baby chicken`);
+			new G.act(0.3,['pet_baby_chicken !out'], '[1] watches [1:their] baby chicken do a lil dance');
+			new G.act(0.1,['pet_baby_chicken'], `[1]'s pet baby chicken clucks loudly.`);
+			new G.act(0.1,['pet_baby_chicken !unstable !out'], `[RED][1]'s pet baby chicken drives [1] insane!`,p=>{p[1].gain('unstable')});
+			new G.act(0.1,['pet_baby_chicken !out','!unstable'], `[RED][1]'s pet baby chicken drives [2] insane!`,p=>{p[1].gain('unstable')})
+			// dragon 
+			new G.act(0.5,['pet_dragon !out', '+ sociopath !pet_dragon'],`[2] is envious of [1]'s pet dragon`)
+			new G.act(0.5,['pet_dragon teamalive:>2 !out', '+ any', '+ any'],`[3] and [2] [try to pet|gawp in awe at|go for a ride on]`)
 			new G.act(0.2,['!out gyarados members:>1','+ any'],`[2] marvels at [1]'s pet Gyarados.`)
 			new G.act(0.2,['!out gyarados members:>2','+ any','+ any'],`[2] and [3] marvels at [1]'s pet Gyarados.`)
 
 			// Flo generic 
 			new G.act(0.1,['alive:2 unalive:>3','+ !sociopath'],`[1] and [2] share a somber moment, remembering those who didn't make it this far.`);
-			new G.act(0.1,['survivalist alive:1 unalive:>3'],`[1] looks at the empty spaces where [1:their] companions once stood.`);
+			new G.act(0.1,['survivalist teamalive:1 unalive:>3'],`[1] looks at the empty spaces where [1:their] companions once stood.`);
+
 			// Flo weather 
 			
 			//finding items
@@ -4298,7 +4317,10 @@ G={
             new G.act(newPetMult*0.01,['animal_ken%0.5|peaceful%0.2|kind%0.2|scrappy%0.2|rich%0.2|any%0.5 !pet_tiger|sociopath%0.8|survivalist%0.5'],`[BLUE][[1] is almost mauled by a raging tiger!<br>[1] removes the thorn from their paw, and the tiger quickly becomes the biggest, scariest, kitten.|[1] finds a starving tiger cub who's lost their mother.<br>[1] begins feeding it and teaching the tiger cub tricks.]`,p=>{p[1].gain('pet tiger');});
             new G.act(newPetMult*0.02,['animal_ken%0.5|peaceful%0.2|kind%0.2|scrappy%0.2|marksmen%0.2|any%0.5 !pet_hawk|sociopath%0.8|survivalist%0.5'],`[BLUE][1] finds an injured bird and nurturs them back to health.<br>The recovered hawk keeps circling around [1].`,p=>{p[1].gain('pet hawk');});
             new G.act(newPetMult*0.02,['peaceful%0.2|naive%0.5|annoying%0.5|scrappy%0.5|any%0.5 !pet_rock|sociopath%0.8|analytical%0.8|survivalist%0.8'],`[BLUE][1] picks up an unusual rock.<br>Maybe [1:they] can teach it some tricks...?`,p=>{p[1].gain('pet rock');});
-			
+			// Flo's pets
+			new G.act(newPetMult*0.02,['animal_ken%0.5|scrappy%0.2|kind%0.2|survivalist%0.5 !mysterious_egg'],`[BLUE][1] [looks around and finds|gets hit on the head by|climbs a tree and finds|nearly steps on] a mysterious egg!`)
+			new G.act(newPetMult*0.02,['animal_ken%0.5|survivalist%0.5|peaceful%0.5|meek%0.5|w:rain%0.5 !pet_goldfish'], `[BLUE][1] [looks around and finds a puddle|finds a perfectly preserved bowl] with a Goldfish [inside|happily blubbing away|swimming cheerfully]!`)
+			new G.act(newPetMult*0.01,['w:rain%0.5|w:storm%0.5 !sociopath'], `[BLUE][1] rescues a goldfish from a nearby puddle! They're now best friends!`)
 			// Theft - TW & Nyan Cat (& CursedSliver for adding the new items)
 			// - Melee
 			new G.act(lootDeadMult*0.025,[itemThief+' !peaceful|pitchfork|naive%0.5|meek%0.2','pitchfork dead !nihil'],`[BLUE][1] [stops in their tracks|freezes in fear|gasps in surprise] when [1:they] stumble upon [2]'s lifeless body.<br>Fearing for [1:their] own safety, [1] [grabs|takes|loots] the nearby pitchfork [from the ground|from [2]].`,p=>{p[1].gain('pitchfork');p[2].lose('pitchfork');});
