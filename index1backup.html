@@ -12,9 +12,14 @@
 		
 		FORKED: FLO - 06-MAY-2025
 
-		Scroll down to line ~750 to see the dev docs. 
-
-		
+		//TODO : 
+			-more trait events and moves
+			-allow action func to override the text; this way, we can have special conditional events (ie. scrappy finding different kinds of items in one action)
+			-localstorage save
+			-load from pastebin
+			-better parsing : [1:they] find[-s|] (>he finds, she finds, they find)
+			-helping moves
+			-implement intercepts
 		-->
 		
 		<script src=" https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js "></script>
@@ -712,93 +717,7 @@
 
 
 <script>
-// For your pleasure, some blank lines so that docs are 750, if this is all used please update the line number.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-# = # = # = # = # = # = # = # = # = # = # = # =
-
---- Dear Dev of Tomorrow 
-
-# = # = # = # = # = # = # = # = # = # = # = # =
-(I like to Ctrl+F "Tomorrow" to get back here)
-
-This file is split into the following sections :
-
-1) CSS 
-2) HTML 
-3) Guide <- * You are here * 
-4) Lib - Commonly used functions throughout the whole file
-5) Perks and Perk definitions - Load "perks" into the game
-6) Team definitions and Character creator
-7) Flo's weather code
-8) "Acts"
-9) Combat Overseer and "Moves"
-10) Round - Logic for each round (Ctrl+F "ROUNDBEGIN")
-11) End - some random functions and running the whole thing.
-----------------
-What is a...
-
-"Perk"?
-- A perk is an attribute that may be assigned to a player throughout the course of a game, these include statuses, items, personality traits.
-- As you may have seen in the creator, some of these are assignable by the player/ in the creator screen. 
-- Ctrl+F "PERKDOC" for more
-
-"Act"?
-- An act is an action that may happen each round, these target 1 or more people, and fit them into actions, and sometimes perform functions based on the actions
-- Cursed wrote an absolutely excellent writeup and explanation of the act system at the top of this section.
-- Ctrl+F "ACTDOC" for more
- 
-"Moves"?
-
-
-
-//TODO : 
-	-more trait events and moves
-	-allow action func to override the text; this way, we can have special conditional events (ie. scrappy finding different kinds of items in one action)
-	-localstorage save
-	-load from pastebin
-	-better parsing : [1:they] find[-s|] (>he finds, she finds, they find)
-	-helping moves
-	-implement intercepts
-
-_/()-()\_   
-   \"/  
-    `  - flo
-
-*/
 //lib
 l=function(d){return document.getElementById(d);};
 c=function(a){return a[Math.floor(Math.random()*a.length)];};
@@ -970,7 +889,6 @@ function loadSaves() {
 	}
 }
 
-// Beginning of G
 
 G={
 	init:function()
@@ -1022,7 +940,6 @@ G={
 		}
 
 		/*
-		PERKDOC
   		DOCUMENTATION:
     		"name": the name of the perk
       		"desc": description
@@ -1223,16 +1140,7 @@ G={
         //Make sure people stay "gone" -TW
         new G.perk({name:`nihil`,desc:`Has ceased to exist entirely.`,out:true});
         new G.perk({name:`confirmed`,desc:`Has been confirmed to not be mostly dead.`,out:true});
-		// Utility flo
-		new G.perk({name:`cracked egg`,desc:`Oooooh, what's inside?`});
-			// Goldfish evolutions 
-		new G.perk({name:`gyarados`, desc:`Woah! A Gyarados to fight for you`});
-		new G.perk({name:`shiny gyarados`, desc:`A cool red Gyarados from Rage Lake!`})
-		// Egg -> Cracked egg -> Baby chicken | Hawk | Dragon | Dinosaur 
-		new G.perk({name:`pet baby chicken`, desc:`a cute baby chicken to peck your opponents`});
-		new G.perk({name:`pet dragon`, desc:`An awesome pet dragon to smite your foes`});
-		new G.perk({name:`pet dinosaur`, desc:`A pet from a prehistoric time`})
-
+		
 		G.glob={type:'item'};
 			G.glob.def=true;
 		let ITEM_ASSETS = `assets/items/`
@@ -1262,10 +1170,7 @@ G={
         // Additional Pets -TW
         new G.perk({name:`pet hawk`,desc:`A cunning pet hawk to spy from the skies above.`,tier:1});
 		new G.perk({name:`pet rock`,desc:`A classic pet rock to teach tons of neat tricks.`,tier:0});
-		// Even More Pets! - Flo
-		new G.perk({name:`pet snake`,desc:`A sssslithery sssnake to chomp your foesss.`})
-		new G.perk({name:`pet goldfish`,desc:`A pet goldfish in a bowl. Blub Blub!`, tier:1})
-		new G.perk({name:`mysterious egg`, desc:`A mysterious egg, who knows what's inside`, tier:2})
+
         // Additional items -TW
         new G.perk({name:`cursed knife`,desc:`May force it's user into unspeakable things.`,tier:1});
 		new G.perk({name:`shuriken`,desc:`Various knives designed for throwing.`,tier:0});
@@ -1319,9 +1224,7 @@ G={
 		new G.perk({name:'a really good guidebook',desc:'Contains cost-efficient recipes for all sorts of things.',tier:5});
 		new G.perk({name:'pet lobster',desc:'A nice lobster to do your aquatic biddings.',tier:5});
 		// hi mom! - Flo
-		new G.perk({name:`<i>A cool hat</i>`,desc:'A cool hat to bring you joy.',tier:0});
-	
-
+		new G.perk({name:`<i>A cool hat</i>`,desc:'A cool hat to bring you joy.',tier:0})
 		let autoCompileSetupsList = true;
 
 		G.exportAllPerks = function() {
@@ -1933,7 +1836,7 @@ G={
 					"col":"blue",
 					"icon":"/assets/weather/toenado.gif" // haha orteil reference
 				},// Weird -> Sunny, Cloudy, Rainy, Drought, Thunder, Tornado, Weird
-				"weird":{
+				"weird:":{
 					"chance": 0.5,
 					"possibilities":{
 						"sunny": 0.17,
@@ -3042,7 +2945,6 @@ G={
 					return c(weather_transitions[oldWeather][newWeather]);
 				}
 			}
-			G.nextWeatherForce = '';
 			G.getWeatherSettings = function() {
 				// Used for initialising the weather
 				var initialWeather = l('initialWeather').value;
@@ -3053,7 +2955,6 @@ G={
 					var weatherOptions = ['sunny', 'cloudy', 'rainy', 'drought', 'thunder', 'tornado'];
 					initialWeather = c(weatherOptions);
 				}
-				G.nextWeatherForce = initialWeather;
 				var initialWeatherString = G.getWeatherTransitionString(initialWeather,initialWeather);
 				var boxcol = weatherStates[initialWeather].col;
 				var initialWeatherIcon = weatherStates[initialWeather].icon;
@@ -3069,11 +2970,6 @@ G={
 			// Modify your weather state change logic to use these settings
 			G.changeWeather = function(currentWeather) {
 				var settings = G.weatherSettings;
-
-				if (G.nextWeatherForce) { 
-					G.nextWeatherForce = '';
-					return G.nextWeatherForce;
-				}
 				
 				// Handle no changes case
 				if (settings.changeFreq === 'none') {
@@ -3809,39 +3705,11 @@ G={
 				}
 				G.char.prototype.testCond = conditionTester;
 				G.team.prototype.testCond = conditionTester;
-				G.act.prototype.checkSelf = function(me, toMatch, lastSelected, interactMin) {
-					let prevTeam = lastSelected || 0;
-					let firstTeam = me.team;
-					toMatch = toMatch || deepArrCopy(this.people)[0];
-					let req = toMatch.split(' ');
-					for (let i in req) {
-						req[i] = req[i].split('|');
-					} 
-					let fitANDMe = true;
-					for (let i in req) {
-						let fitORMe = false;
-						let neg = false;
-						if (req[i][0][0] == '!') {
-							neg = true;
-						}
-						for (let ii in req[i]) {
-							if (me.testCond(req[i][ii], prevTeam, firstTeam)) { fitORMe = true; break; }
-						} 
-						if (fitORMe && neg) { fitORMe = false; } else if (!fitORMe && neg) { fitORMe = true; }
-						if (!fitORMe) { fitANDMe = false; break; }
-					} 
-					if (fitANDMe) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-				G.act.prototype.fit = function(me, toMatch, lastSelected, interactMin, forcePool)
+				G.act.prototype.fit=function(me, toMatch, lastSelected, interactMin, forcePool)
 				{
 					/*
 						returns one or more people/team who fit the given conditions
 						the "me" parameter specifies which person/team the first condition must match
-						- optimization: this now assumes that the first condition already matches, check for first condition elsewhere using G.act.prototype.checkSelf
 						ie. ['shotgun lunatic','- meek'] will return a person with the "shotgun" and "lunatic" perks specified by me, and a person who is "meek" and on a different team
 						syntax :
 	  						' '
@@ -3911,13 +3779,35 @@ G={
 
 					if (!me instanceof G.char) { console.log(me); throw 'The above is not an instance of char!'; }
 					
-					let selected = [me];
+					let selected = [];
 					
-					let prevTeam = me.team;
+					let prevTeam = 0;
 					let firstTeam = me.team;
 
 					if (lastSelected) { prevTeam = lastSelected.team; }
-					//previous check self code here
+					let req = bigReq[0].split(' ');
+					for (let i in req) {
+						req[i] = req[i].split('|');
+					} 
+					let fitANDMe = true;
+					for (let i in req) {
+						let fitORMe = false;
+						let neg = false;
+						if (req[i][0][0] == '!') {
+							neg = true;
+						}
+						for (let ii in req[i]) {
+							if (me.testCond(req[i][ii], prevTeam, firstTeam)) { fitORMe = true; break; }
+						} 
+						if (fitORMe && neg) { fitORMe = false; } else if (!fitORMe && neg) { fitORMe = true; }
+						if (!fitORMe) { fitANDMe = false; break; }
+					} 
+					if (fitANDMe) {
+						selected.push(me);
+						prevTeam = me.team;
+					} else {
+						return false;
+					}
 					for (let i=1;i<bigReq.length;i++)
 					{
 						//i is each person in the req
@@ -4013,20 +3903,12 @@ G={
 			/*
 			new G.act(FORCE,['team members:1','+'],`[2] sees no point in being the only member in [1] and dissolves it.`,p=>{p[1].dissolve();});
 			*/
-
-			new G.charParseModule('smallItem', function() {
-				//[a cheeseburger|a bag of kale chips|a nice hunk of cheese|a garden salad|some grilled fish|a delicious steak|a tall glass of milk|some cookies|a birthday cake|some trail mix|a popsicle|some pizza|a chicken dinner|some fried chicken|some yogurt|a really cool shirt|a new hat|a bag of chips|some candy|some marshmallows|some comic books|a rubber ducky]
-				return choose(['a cheeseburger', 'a bag of kale chips', 'a nice hunk of cheese']);
-				//unfinished, wacky idea
-				//perhaps can instead pull randomly based on items on characters?
-			});
 			
 			//trait-related idling
-			new G.act (0.5,['any|any'],`[1] admires the [architecture|brick patterns].`);
 			new G.act(1,['any|any'],`[1] [hums a song to [1:themself]|twiddles [1:their] thumbs|thinks about what [1:they] did to end up here|wonders about the future|has a horrible feeling in [1:their] [chest|gut]|stares into the distance].`);
 			new G.act(1,['leader','+ team teamalive:>2'],`[1] [hopes to get everyone out of here|tries to keep a brave face on for everyone's sake].`);
-			new G.act(0.5,['leader','+ leader|devious|stubborn|any%0.2 !kind|peaceful|naive'],`[1] and [2] get into an argument over who should be in charge.`);
-			new G.act(0.5,['leader !sociopath','+ team teamalive:>2 teamdeaths:0'],`[1] is proud to lead [2].`);
+				new G.act(0.5,['leader','+ leader|devious|stubborn|any%0.2 !kind|peaceful|naive'],`[1] and [2] get into an argument over who should be in charge.`);
+				new G.act(0.5,['leader !sociopath','+ team teamalive:>2 teamdeaths:0'],`[1] is proud to lead [2].`);
 				new G.act(0.5,['leader !sociopath','+ team teamalive:>2 teamdeaths:>0'],`[1] made some mistakes as a leader, but wants to do right by [2].`);
 				new G.act(0.5,['leader|any%0.2 !sociopath','+ team teamdeaths:>1'],`[1] feels horrible for failing [2]...`);
 				new G.act(0.5,['leader naive|cowardly%0.5|any%0.2 !sociopath%0.5|analytical%0.5','+ team teamdeaths:0'],`[1] wants to lead [2] to victory, but isn't sure how to proceed...`);
@@ -4174,44 +4056,6 @@ G={
             new G.act(0.2,['magic_dust artist|cute%0.5|naive%0.5|any%0.5 !goth|survivalist|analytical%0.5|inventor%0.5'],`[1] decorates some stuff with their magic dust.<br>The sparkles will never come out of that now.`);
 				new G.act(0.1,['magic_dust analytical|inventor|any%0.2 !naive'],`[1] tries to study [1:their] magic dust [with reason|scientifically|carefully] but its [properties|colors|effects] keep changing`);
 			new G.act(0.2,['roll_of_fabric artist|cute%0.5|any%0.5'],`[1] [wraps [1:themself] in|cuts pieces out of|considers what to make with] [1:their] fabrics.`);
-			// Weather Idling - CS
-			const weatherIdlingMult = 2.5;
-			new G.act(1.5*weatherIdlingMult,['w:sunny any'],`[1] [stares at the [blazing |shining |overhead |]sun[, almost blinding [1:themself]|]|enjoys the sunlight [bathing|coating] [1:them] in warmth|wishes that this period of gentle weather would last|[despises|hates|dislikes] the uncomfortable [thick, heated air|intense lights|blazing heat[, like a sauna|||]]|rests below the sun|is sunbathing[ naked| barely clothed| face down| face down| face down| smiling| smiling|||]].`);
-			new G.act(1*weatherIdlingMult,['w:rainy any'],`[1] [feels the raindrops landing on [1:their] [face|hair|hands], and [screams|cries|smiles|laughs|murmurs to [1:themself]]|looks up at the crying sky and sighs|holds out a hand to catch some raindrops|sniffles, taking in some cold, moist air|wipes away the water on [1:their] [face|head|hair|body|hands]|closes [1:their] eyes and lets the rain pour over [1:their] [face|body]].`);
-				new G.act(1*weatherIdlingMult,['w:rainy survivalist|analytical%0.5|any%0.2 !naive'],`[1] collects some rain in a [rudimentary bucket|simple container|bucket|newly-dug hole in the ground|cup] for use later.`);
-				new G.act(1*weatherIdlingMult,['w:rainy any artist%0.5|survivalist%0.4|annoying%0.2|any%0.1'],`[1] is annoyed about [the rain staining [1:their clothes]|getting wet|how [1:they] just got soaked|wishes for an umbrella, or something].`);
-				new G.act(1*weatherIdlingMult,['w:rainy devious%0.5|sociopath%0.5|vigilant%0.2|bulky%0.1|any%0.05 !naive'],`[1] realizes that this rain is a perfect cover for [ambushing|killing|dismembering] someone...`);
-				new G.act(1*weatherIdlingMult,['w:rainy survivalist%0.5|inventor%0.5|any%0.5'],`[1] quickly [assembles a [rudimentary tent|simple roof|tiny umbrella]|finds a [tree|cave|crevice|fallen wood]] to protect [1:them] against the rain.`);
-			new G.act(1.5*weatherIdlingMult,['w:cloudy any'],`[1] [feels a chilly breeze brushing past [1:them]|stands beneath the low-lying sky|is in a low mood, looking over the gray langscape|examines the cloud-covered sky, wondering when rain will come|is grateful that the sun's oppressive rays are no longer upon [1:them]|finds that this weather reminds [1:them] of Autumn].`);
-				new G.act(1*weatherIdlingMult,['w:cloudy analytical%0.5|survivalist%0.2|vigilant%0.2|any%0.05'],`[1] analyzes patterns and trends in the clouds, thinking hard about the future.`);
-			new G.act(1*weatherIdlingMult,['w:drought any'],`[1] [fears for [1:their] water supplies|is thirsty, but could find no water|picks at the crumbling dirt|is grateful to be near a water source[, however brief it may be|even if not exactly drinkable]|discovers that shades are not very useful against such pure dryness|would love some water right now|always knew that agriculture was a bad idea|attempts to soothe [1:their] scaly skin|uncomfortably tumbles in [1:their] sleep|kicks a large bunch of dust off the ground|checks [1:their] water supplies].`);
-				new G.act(1*weatherIdlingMult,['w:drought survivalist%0.5|analytical%0.2'],`[1] thinks about ways to get some more water.`);
-				new G.act(1*weatherIdlingMult,['w:drought naive%0.5|suicidal%0.5|hypersomniac%0.3'],`[1] is rather unconcerned about this terrible weather.`);
-				new G.act(1*weatherIdlingMult,['w:drought high_pressure_garden_hose'],`[1] is grateful to have his hose around during such dire times.`);
-				new G.act(1*weatherIdlingMult,['w:drought|any%0.05 haste%0.6|survivalist%0.3|any%0.1'],`[1] fortunately stumbles upon a small spring, coincidentally worth a small fortune at the moment.`);
-			new G.act(2*weatherIdlingMult,['w:thunder any'],`[1] [shakes from a bout of distant thunder|is shaken awake by a thunderous crash in the distance|lets the downpour wash over [1:them]|had to evacuate the tree that [1:they] were resting under from the present thunderstorm|[shudders|jumps away|is very startled] by a stray lightning bolt hitting atop a [tree|dead branch|dead branch|tall cliff|shack's roof|hanged man]|welcomes this nice change of scenary].`);
-				new G.act(1*weatherIdlingMult,['w:thunder analytical%0.5|devious%0.25|sociopath%0.1|will_respawn|any%0.05'],`[1] wonders how [1:they] can use the power of lightning against [1:their] enemies.`);
-				new G.act(1*weatherIdlingMult,['w:thunder any cowardly%0.5|meek%0.4|survivalist%0.3|any%0.15 !suicidal'],`[1] desperately tries to find some sort of shelter against the storm.`);
-				new G.act(1*weatherIdlingMult,['w:thunder any survivalist%0.75|inventor%0.5|any%0.25'],`[1] quickly hacks together a cover against the storm.`);
-				new G.act(1*weatherIdlingMult,['w:thunder any inventor%0.6'],`[1] thinks about constructing a machine to barter with the thunder, but is lacking in supplies.`);
-				new G.act(1*weatherIdlingMult,['w:thunder topaz_on_a_stick'],`[1] holds up [1:their] topaz on a stick toward the sky, unafraid of the storm.`);
-			new G.act(4*weatherIdlingMult,['w:tornado any'],`[1] [is grateful to be alive|[is trying to find|finds] a hiding spot from the deadly tornado|wonders how [1:they] will avoid this catastrophic weather|tries to run away, as fast as [1:they] can|is rather concerned about the vortex of ascending dust in the distance, but doesn't want to move [1:their] [camp|base|supplies]|wonders when this will end|finds the overpowering winds a bit too chilly for [1:their] liking|covers [1:their] eyes with [1:their] clothes to prevent dust from getting into them|sincerely hopes for the tornado to befall upon [1:their] enemies].`);
-				new G.act(2*weatherIdlingMult,['w:tornado survivalist%0.75|any%0.25'],`[1] [finds|constructs|makes] some simple shelter against the windstorm.`);
-				new G.act(2*weatherIdlingMult,['w:tornado cowardly%0.5|meek%0.3|any%0.5 !able%0.5|survivalist|leader'],`[1] [screams in fear|aimlessly runs around in panic|huddles against the ground|cries in desperation|starts praying for [1:their] life], [frightened out of [1:their] minds|feeling completely helpless against the tornado|utterly lost on what to do].`);
-				new G.act(1*weatherIdlingMult,['w:thunder|w:tornado will_respawn|angel_in_a_bottle|bulky%0.2|leader%0.1|invulnerable|ironskin|panacea_pellet able'],`[1] solemnly stands in the raging storm, feeling invincible against any and all dangers.`);
-			new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
-				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
-				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
-				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
-				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
-				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
-				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
-				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
-				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [plays with the sand in the suspended in air|stares in awe at the brilliant-cut sky|is scared of falling through glitches on the ground into the unknown|is really confused at everything happening around [1:them]|forms the suspended water droplets into crystal balls|does happy moon jumps on the top of caves|is counting imaginary numbers of [hands|fingers|trees|blades of grass|items on [1:them]|suns|stars|feet|distance from home]|is shocked to find everyone's faces mangled and distorted|hums to the tunes of the wind|bashes [1:their] head against a [hill|ground|tree|sky|star|manifestation of death|memory|person], only for it run away|admires the geometric patterns on the back of [1:their] head].`);
-				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
-				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
-				new G.act(Math.min(20*weatherIdlingMult, 49),['w:weird any'],`[1] [is stepping carefully, avoiding unstable coordinates|cries into tears that accumulate into checkerboard patterns|doesn't mind standing on [1:their] head and walking with [1:their] chest|is [considering forcibly passing out from seeing|scared to see|seeing|seeing|absentmindedly observing|delighted to see] [[slimy|slimy|phantom] tentacles wriggle|shadows phasing|a jelly-like substance squeezing|earthy vibrations becoming corporeal exiting|[1:their] memories coming] out of the ground|considers going to sleep|tries to find prophecies in this cosmic event|tries to climb the impossibly tall hill on the horizon, only to find it becoming a [toadstool|bump on the ground|cheeseburger|fellow tribute|puddle on the ground|sprouting leaf]].`);
-
 			// Status Effect Idling - TW
 			// // Minor Status Effects
 			new G.act(0.5,['scratched !first_aid_kit%0.5|bulky%0.5|stubborn%0.5'],`[1] [winces|worries|checks over [1:themself]] as [1:their] scratches [burn a little|bother [1:them]|sting steadily].`);
@@ -4221,7 +4065,7 @@ G={
 			new G.act(0.5,['cut_up !first_aid_kit%0.5|bulky%0.2|stubborn%0.2'],`[1] covers up [1:their] various cuts [and slashes |] as [1:they] [slightly bleed|have mostly scabbed over|breath slowly to [numb|stiffle] the pain].`);
 			new G.act(0.5,['broken !first_aid_kit%0.5|bulky%0.2|stubborn%0.2'],`[1]'s breathing is [pained|struggling|staggered] from [1:their] [internal injuries|broken rib|sore body].`);
 			new G.act(0.5,['shot !first_aid_kit%0.5|bulky%0.2|stubborn%0.2'],`[1] grips [1:their] [still slightly bleeding|gruesome] bullet wound, pressing on to survive.`);
-			new G.act(0.5,['singed !first_aid_kit%0.5|bulky%0.2|stubborn%0.2'],`[1] is still looking toasty from when [1:they] last dealt with fire.`);
+			new G.act(0.5,['singed !first_aid_kit%0.5|bulky%0.2|stubborn%0.2'],`[1] is still looking toasty from when [1:they] last delt with fire.`);
 			new G.act(0.5,['poisoned !medicine%0.5|bulky%0.2|stubborn%0.2'],`[1] is turning [pale|yellow|green] from the poison coursing through [1:their] body.`);
 			// // Major Status Effects
 			new G.act(1,['bleeding_out !out'],`[1] hasn't died yet despite their extensive blood loss.`);
@@ -4251,64 +4095,8 @@ G={
 			new G.act(1,['angel\'s_revival dead !nihil|sheep|pixelated'],'[BLUE]Out of nowhere, a point in the sky begin to glow a glorious golden shine, as a pair of wings grow out of it - carrying [1]! <br>As it turns out, when [1:they] last died, their angel in a bottle shattered, which lead to [1:their] revival.',p=>{ p[1].revive('angels'); p[1].lose('angel\'s revival'); });
 			new G.act(0.6,['angel\'s_revival dead !nihil|sheep|pixelated'],'[BLUE]Out of nowhere, a point in the sky begin to glow a glorious golden shine, as a pair of wings grow out of it - carrying [1]! <br>As it turns out, when [1:they] last died, their angel in a bottle shattered, which lead to [1:their] revival.<br>The angel set [1:them] down gently, then hands [1:them] something - another angel in a bottle!',p=>{ p[1].revive('angels'); p[1].lose('angel\'s revival'); p[1].gain('angel in a bottle'); });
 			
-			// Flo's pets 
-			// These odds are all made up on the fly, feel free to add, tweak, etc
-			// Egg crackin :3
-			new G.act(0.8,['mysterious_egg any animal_ken%0.5 !out'],`[BLUE][1] holds [1:their] egg to [1:their] ear, [1:they] hear noises inside!`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
-			new G.act(0.3,['mysterious_egg !out'], `[BLUE][1] begins to hear noises coming from [1:their] egg!`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
-			new G.act(0.3,['mysterious_egg any !out'], `[BLUE][1]'s egg is [starting to make noise|showing signs of hatching soon]!`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
-			new G.act(0.3,['mysterious_egg any'], `[BLUE][1]'s egg [wobbles and shakes|bounces up and down|wriggles and squarks].`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
-			
-			// Baby chicken 
-			new G.act(0.5,['!out cracked_egg animal_ken%0.5 !sociopath !devious'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
-			new G.act(0.4,['!out cracked_egg !sociopath !devious'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
-			new G.act(0.3,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
-			// Hawk
-			new G.act(0.3,['!out cracked_egg animal_ken%0.5 !peaceful'],`[BLUE][1]'s egg hatches into a hawk!`,p=>{p[1].lose('cracked egg');p[1].gain('pet hawk');});
-			new G.act(0.4,['!out cracked_egg analytical%0.3|nerd%0.5%|leader%0.3'],`[BLUE][1]'s egg hatches into a hawk!`,p=>{p[1].lose('cracked egg');p[1].gain('pet hawk');});
-			new G.act(0.2,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a hawk!`,p=>{p[1].lose('cracked egg');p[1].gain('pet hawk');});
-			// Dragon! 
-			new G.act(0.2,['!out cracked_egg animal_ken%0.5 !peaceful'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet_dragon');});
-			new G.act(0.1,['!out cracked_egg nerd%0.4|meek%0.4|pyromania%0.6'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dragon');});
-			new G.act(0.05,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dragon');});
-			// dinosaur
-			new G.act(0.2,['!out cracked_egg animal_ken%0.5|nerd%0.5|glasses%0.5'],`[BLUE][1]'s egg hatches into a baby dinosaur!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dinosaur');});
-			new G.act(0.1,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a baby dinosaur!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dinosaur');});
-			
-			// goldfish evolution
-			new G.act(0.5,['!out has_killed pet_goldfish'],`[BLUE]After battling, [1]'s pet goldfish has reached level 20, and evolves into a Gyarados!`,p=>{p[1].lose('pet goldfish');p[1].gain('gyarados');});
-			new G.act(0.05,['!out has_killed pet_goldfish'],`[BLUE]After battling, [1]'s pet goldfish has reached level 20, and evolves into a Shiny Gyarados!`,p=>{p[1].lose('pet goldfish');p[1].gain('shiny gyarados');});
-
-			// Flo pet idles 
-			// chicken
-			new G.act(0.5,['teamalive:>2 pet_baby_chicken !out', '+ !sociopath', '+ !sociopath'],`[2] and [3] watch as [1]'s baby chicken does a cool dance.`)
-			new G.act(0.3,['pet_baby_chicken !out', '+ !sociopath'], `[1] lets [2] pet [1:their] baby chicken`);
-			new G.act(0.3,['pet_baby_chicken !out'], '[1] watches [1:their] baby chicken do a lil dance');
-			new G.act(0.1,['pet_baby_chicken'], `[1]'s pet baby chicken clucks loudly.`);
-			new G.act(0.1,['pet_baby_chicken', 'anyone'], `[1]'s pet baby chicken clucks loudly at [2].`);
-			new G.act(0.1,['pet_baby_chicken !unstable !out'], `[RED][1]'s pet baby chicken drives [1] insane!`,p=>{p[1].gain('unstable')});
-			new G.act(0.1,['pet_baby_chicken !out','!unstable'], `[RED][1]'s pet baby chicken drives [2] insane!`,p=>{p[1].gain('unstable')});
-			// dragon 
-			new G.act(0.5,['pet_dragon !out', '+ sociopath !pet_dragon'],`[2] is envious of [1]'s pet dragon`);
-			new G.act(0.5,['pet_dragon teamalive:>2 !out', '+ any', '+ any'],`[3] and [2] [try to pet|gawp in awe at|go for a ride on] [1]'s pet dragon.`);
-			// Crazy dragon attacks!
-			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2], who barely gets away with [2:their] life.<br>But not without losing their eyebrows.`, p=>{p[2].gain('singed')})
-			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2], who barely gets away with [2:their] life.<br>But not without some serious burns.`, p=>{p[2].gain('seared')})
-			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2],<br> Who disintegrates immediately.`, p=>{p[2].gain('burnt')})
-			
-
-			// gyarados 
-			new G.act(0.2,['!out gyarados members:>1','+ any'],`[2] marvels at [1]'s pet Gyarados.`)
-			new G.act(0.2,['!out gyarados members:>2','+ any','+ any'],`[2] and [3] marvels at [1]'s pet Gyarados.`)
-			new G.act(0.3,['!out gyarados'],`[1]'s Gyarados `)
-			// Flo generic 
-			new G.act(0.1,['alive:2 unalive:>3','+ !sociopath'],`[1] and [2] share a somber moment, remembering those who didn't make it this far.`);
-			new G.act(0.1,['survivalist teamalive:1 unalive:>3'],`[1] looks at the empty spaces where [1:their] companions once stood.`);
-
-			// Flo weather 
-			
 			//finding items
-			var baseItemMult=1.5;
+			var baseItemMult=1.2;
 				var newItemMult=baseItemMult*0.2 // New item spawns
 				var newPetMult=baseItemMult*0.1 // New pet spawns
 				var newMatMult=baseItemMult*0.3 // New material spawns
@@ -4320,69 +4108,68 @@ G={
 				var airDropMult=baseItemMult*0.1 // Rich air drop item actions
 				var itemCraftMult=baseItemMult*0.7 // Crafting item actions
 			var baseItemLoss=0.1;
-			var inanimateItemFind='!w:thunder%0.5|w:rainy%0.25|w:tornado%0.2 scrappy%0.75|vigilant%0.2';
-			var itemThief=' gremlin|scrappy%0.5|devious%0.5|survivalist%0.5|any%0.2 !naive%0.5|kind%0.2|cut_up%0.2|broken%0.2|shot%0.2|missing_arm%0.3|w:thunder%0.5|w:rainy%0.35|w:tornado%0.5';
+			var itemThief=' gremlin|scrappy%0.5|devious%0.5|survivalist%0.5|any%0.2 !naive%0.5|kind%0.2|cut_up%0.2|broken%0.2|shot%0.2|missing_arm%0.3';
 
 			//Every action in each category adds to a total of 1.0, in the original version, items had a combined rate of 0.012 -TW
 			//Everything is weighted with traits, to be 40-% with worst traits, 50% with no traits, and 90+% with all best traits. -TW
 			//CS speaking here: who cares, it matters very little apart from keeping the total chance to find something roughly the same (which doesn't really matter for anything), so to all future modders, all you need to care about is that the new item find event has similar rates to previous events
 			//Clothing & Armor(30%) -TW
-			new G.act(newItemMult*0.05,[inanimateItemFind+'|lucky_coin%0.2|any%0.5 !leather_scraps|naive%0.2'],`[BLUE][1] finds some leather scraps, just enough to patch together some rudimentary clothing.<br>It looks rather caveman-like.`,p=>{p[1].gain('leather scraps');});
-			new G.act(newItemMult*0.04,[inanimateItemFind+'|lucky_coin%0.2|seductive%0.5|any%0.5 !bikini|survivalist%0.8|naive%0.2'],`[BLUE][1] finds a lovely bikini and puts it on!<br>It's quite revealing.`,p=>{p[1].gain('bikini');});
-			new G.act(newItemMult*0.04,[inanimateItemFind+'|lucky_coin%0.2|seductive%0.5|rich%0.5|any%0.5 !dapper_suit|survivalist%0.8|naive%0.2'],`[BLUE][1] finds a dapper suit and puts it on!<br>It's rather fetching.`,p=>{p[1].gain('dapper suit');});
-			new G.act(newItemMult*0.03,[inanimateItemFind+'|lucky_coin%0.2|bulky%0.5|survivalist%0.2|any%0.5 !knight_armor|meek%0.5|naive%0.2'],`[BLUE][1] somehow finds a full suit of medieval armor and puts it on!<br>It gleams with a dazzling shine.`,p=>{p[1].gain('knight armor');});
-			new G.act(newItemMult*0.03,[inanimateItemFind+'|lucky_coin%0.2|survivalist%0.2|any%0.5 !combat_gear|naive%0.2'],`[BLUE][1] somehow finds a bunch of tactical combat gear and equips it!<br>It provides optimal protection for the whole body, without sacrificing flexibility.`,p=>{p[1].gain('combat gear');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|magic_wand%0.2|ancient_scepter%0.2|the_gift%0.5|any%0.5 !wizard_robe|naive%0.2'],`[BLUE][1] disappears for a while and comes back with a wizard robe [1:they] just found...<br>[1:g|He slips|She slips|They slip|It slips] it on, scattering sparkles everywhere.`,p=>{p[1].gain('wizard robe');});
-			new G.act(newItemMult*0.05,[inanimateItemFind+'|lucky_coin%0.2|survivalist%0.2|any%0.5 !parka|naive%0.2'],`[BLUE]While at first [1] was shivering in the [rain|cold|wind], [1:they] manages to warm up from finding a comfortable parka!`,p=>{p[1].gain('parka');});
-			new G.act(newItemMult*0.04,[inanimateItemFind+'|lucky_coin%0.2|survivalist%0.2|any%0.5 !kevlar_vest|naive%0.2'],`[BLUE][1] somehow finds a kevlar vest and puts it on.<br>[1] feels bulletproof now!`,p=>{p[1].gain('kevlar vest');});
+			new G.act(newItemMult*0.05,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|any%0.5 !leather_scraps|naive%0.2'],`[BLUE][1] finds some leather scraps, just enough to patch together some rudimentary clothing.<br>It looks rather caveman-like.`,p=>{p[1].gain('leather scraps');});
+			new G.act(newItemMult*0.04,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|seductive%0.5|any%0.5 !bikini|survivalist%0.8|naive%0.2'],`[BLUE][1] finds a lovely bikini and puts it on!<br>It's quite revealing.`,p=>{p[1].gain('bikini');});
+			new G.act(newItemMult*0.04,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|seductive%0.5|rich%0.5|any%0.5 !dapper_suit|survivalist%0.8|naive%0.2'],`[BLUE][1] finds a dapper suit and puts it on!<br>It's rather fetching.`,p=>{p[1].gain('dapper suit');});
+			new G.act(newItemMult*0.03,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|bulky%0.5|survivalist%0.2|any%0.5 !knight_armor|meek%0.5|naive%0.2'],`[BLUE][1] somehow finds a full suit of medieval armor and puts it on!<br>It gleams with a dazzling shine.`,p=>{p[1].gain('knight armor');});
+			new G.act(newItemMult*0.03,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !combat_gear|naive%0.2'],`[BLUE][1] somehow finds a bunch of tactical combat gear and equips it!<br>It provides optimal protection for the whole body, without sacrificing flexibility.`,p=>{p[1].gain('combat gear');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|magic_wand%0.2|ancient_scepter%0.2|the_gift%0.5|any%0.5 !wizard_robe|naive%0.2'],`[BLUE][1] disappears for a while and comes back with a wizard robe [1:they] just found...<br>[1:g|He slips|She slips|They slip|It slips] it on, scattering sparkles everywhere.`,p=>{p[1].gain('wizard robe');});
+			new G.act(newItemMult*0.05,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !parka|naive%0.2'],`[BLUE]While at first [1] was shivering in the [rain|cold|wind], [1:they] manages to warm up from finding a comfortable parka!`,p=>{p[1].gain('parka');});
+			new G.act(newItemMult*0.04,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !kevlar_vest|naive%0.2'],`[BLUE][1] somehow finds a kevlar vest and puts it on.<br>[1] feels bulletproof now!`,p=>{p[1].gain('kevlar vest');});
 			//Weapons (30%) -TW
-			new G.act(newItemMult*0.04,[inanimateItemFind+'|lucky_coin%0.2|bulky%0.2|survivalist%0.2|any%0.5 !big_stick !peaceful|naive%0.2'],`[BLUE][1] finds a big stick...<br>Probably comes in handy to bash some skulls.`,p=>{p[1].gain('big stick');});
-			new G.act(newItemMult*0.03,[inanimateItemFind+'|lucky_coin%0.2|bulky%0.2|survivalist%0.2|any%0.5 !pitchfork !peaceful%0.8|naive%0.2'],`[BLUE][1] finds a pitchfork, which [1:g|he figures|she figures|they figure|it figures] is great for lobbing at enemies.`,p=>{p[1].gain('pitchfork');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|bulky%0.2|survivalist%0.2|any%0.5 !sword !peaceful|naive%0.2'],`[BLUE][1] finds a sword, shiny and sharp.<br>A rather nice find!`,p=>{p[1].gain('sword');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|bulky%0.2|survivalist%0.2|any%0.5 !axe !peaceful|naive%0.2'],`[BLUE][1] finds an axe, upping [1:their] chances of survival somewhat.`,p=>{p[1].gain('axe');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|marksmen%0.2|survivalist%0.2|any%0.5 !handgun !peaceful|naive%0.2'],`[BLUE][1] finds a handgun, with just enough bullets to be useful.`,p=>{p[1].gain('handgun');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|marksmen%0.2|survivalist%0.2|any%0.5 !shotgun !peaceful|naive%0.2'],`[BLUE][1] finds a shotgun!<br>[1:g|He starts|She starts|They start|It starts] thinking about the damage [1:they] can do.`,p=>{p[1].gain('shotgun');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|survivalist%0.2|any%0.5 !grenade !peaceful|naive%0.2'],`[BLUE][1] finds a grenade...<br>Better be careful with that.`,p=>{p[1].gain('grenade');});
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|lucky_coin%0.2|survivalist%0.2|any%0.5 !rocket_launcher !peaceful|naive%0.2'],`[BLUE][1] finds a rocket launcher!<br>That's gonna end well.`,p=>{p[1].gain('rocket launcher');});
-			new G.act(newItemMult*0.03,[inanimateItemFind+'|lucky_coin%0.2|marksmen%0.2|survivalist%0.2|any%0.5 !slingshot !peaceful|naive%0.2'],`[BLUE][1] finds a slingshot! How quaint...<br>Might be useful in a pinch.`,p=>{p[1].gain('slingshot');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|marksmen%0.2|survivalist%0.2|any%0.5 !bow !peaceful|naive%0.2'],`[BLUE][1] finds a bow and some arrows.<br>It'll take some practice but this can surely come in handy.`,p=>{p[1].gain('bow');});
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|lucky_coin%0.2|pyromania%0.5|survivalist%0.2|any%0.5 !flamethrower !peaceful|naive%0.2'],`[BLUE]Are you kidding? [1] just found a flamethrower!<br>See if anyone gets in [1:their] way now!`,p=>{p[1].gain('flamethrower');});
-			new G.act(newItemMult*0.005,[inanimateItemFind+'|lucky_coin%0.2|inventor%0.2|survivalist%0.2|any%0.5 !lasergun !peaceful|naive%0.2'],`[BLUE]Whoah! [1] just found a lasergun!<br>[1:g|He starts|She starts|They start|It starts] swinging it around making "pew pew" sounds, before [1:they] realize [1:they] can just pull the trigger and make those sounds for real.`,p=>{p[1].gain('lasergun');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|naive%0.2|the_gift%0.2|any%0.5 !magic_wand'],`[BLUE][1] follows some sparkles and discovers a magic wand!<br>Hopefully it still has some spells left in it...`,p=>{p[1].gain('magic wand');});
-			new G.act(newItemMult*0.005,[inanimateItemFind+'|lucky_coin%0.2|goth%0.2|the_gift%0.2|any%0.5 !ancient_scepter|naive%0.2'],`[BLUE][1] catches a strange glow in the corner of [1:their] eye and discovers an ancient scepter!<br>Arcane magic courses through [1:their] body as [1:their] fingers touch the carved wood.`,p=>{p[1].gain('ancient scepter');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|marksmen%0.1|bulky%0.1|artist%0.1|inventor%0.1 !high_pressure_garden_hose'],`[BLUE][1] digs up a discarded tube composed of an unusually resiliant material!<br>Seems like it could be useful in a lot of situations...`,p=>{p[1].gain('high pressure garden hose');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|marksmen%0.1|ninja%0.1 !pyromania%0.2|naive%0.2'],`[BLUE][1] glances around and suddenly notices something shiny on the ground!<br>It turns out to be a deep, mesmerizing crystal of sapphire, magically cold to the touch.`,p=>{p[1].gain('freezing sapphire');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|w:thunder|lucky_coin%0.2|the_gift%0.3|vigilant%0.2 !topaz_with_a_hole|topaz_on_a_stick|goth%0.2|naive%0.5'],`[BLUE][1] notices something shiny on the ground. <br>Thinking it was a coin, [1:they] picks it up purely out of boredom, but then realizes that it is actually a piece of brilliantly cut topaz with a hole on one side. This could be useful, but [1:they] don\'t quite yet know why...`,p=>{p[1].gain('topaz with a hole');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|ninja%0.5|survivalist%0.2|any%0.5 !shuriken !peaceful'],`[BLUE][1] finds a [bundle|box|pile] of throwing weapons, including some knives and shuriken.<br>[1] is already practicing with a few tosses.`,p=>{p[1].gain('shuriken');});
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|suicidal%0.5|sociopath%0.2|goth%0.2|any%0.5 !cursed_knife|lucky_coin%0.8|survivalist%0.5|peaceful%0.5'],`[RED][1] finds an old knife with dried blood.<br>Once [1:they] pick it up, they can't seem to get rid of it...`,p=>{p[1].gain('cursed knife');});
+			new G.act(newItemMult*0.04,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|bulky%0.2|survivalist%0.2|any%0.5 !big_stick !peaceful|naive%0.2'],`[BLUE][1] finds a big stick...<br>Probably comes in handy to bash some skulls.`,p=>{p[1].gain('big stick');});
+			new G.act(newItemMult*0.03,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|bulky%0.2|survivalist%0.2|any%0.5 !pitchfork !peaceful%0.8|naive%0.2'],`[BLUE][1] finds a pitchfork, which [1:g|he figures|she figures|they figure|it figures] is great for lobbing at enemies.`,p=>{p[1].gain('pitchfork');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|bulky%0.2|survivalist%0.2|any%0.5 !sword !peaceful|naive%0.2'],`[BLUE][1] finds a sword, shiny and sharp.<br>A rather nice find!`,p=>{p[1].gain('sword');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|bulky%0.2|survivalist%0.2|any%0.5 !axe !peaceful|naive%0.2'],`[BLUE][1] finds an axe, upping [1:their] chances of survival somewhat.`,p=>{p[1].gain('axe');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|marksmen%0.2|survivalist%0.2|any%0.5 !handgun !peaceful|naive%0.2'],`[BLUE][1] finds a handgun, with just enough bullets to be useful.`,p=>{p[1].gain('handgun');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|marksmen%0.2|survivalist%0.2|any%0.5 !shotgun !peaceful|naive%0.2'],`[BLUE][1] finds a shotgun!<br>[1:g|He starts|She starts|They start|It starts] thinking about the damage [1:they] can do.`,p=>{p[1].gain('shotgun');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !grenade !peaceful|naive%0.2'],`[BLUE][1] finds a grenade...<br>Better be careful with that.`,p=>{p[1].gain('grenade');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !rocket_launcher !peaceful|naive%0.2'],`[BLUE][1] finds a rocket launcher!<br>That's gonna end well.`,p=>{p[1].gain('rocket launcher');});
+			new G.act(newItemMult*0.03,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|marksmen%0.2|survivalist%0.2|any%0.5 !slingshot !peaceful|naive%0.2'],`[BLUE][1] finds a slingshot! How quaint...<br>Might be useful in a pinch.`,p=>{p[1].gain('slingshot');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|marksmen%0.2|survivalist%0.2|any%0.5 !bow !peaceful|naive%0.2'],`[BLUE][1] finds a bow and some arrows.<br>It'll take some practice but this can surely come in handy.`,p=>{p[1].gain('bow');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|pyromania%0.5|survivalist%0.2|any%0.5 !flamethrower !peaceful|naive%0.2'],`[BLUE]Are you kidding? [1] just found a flamethrower!<br>See if anyone gets in [1:their] way now!`,p=>{p[1].gain('flamethrower');});
+			new G.act(newItemMult*0.005,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|inventor%0.2|survivalist%0.2|any%0.5 !lasergun !peaceful|naive%0.2'],`[BLUE]Whoah! [1] just found a lasergun!<br>[1:g|He starts|She starts|They start|It starts] swinging it around making "pew pew" sounds, before [1:they] realize [1:they] can just pull the trigger and make those sounds for real.`,p=>{p[1].gain('lasergun');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|naive%0.2|the_gift%0.2|any%0.5 !magic_wand'],`[BLUE][1] follows some sparkles and discovers a magic wand!<br>Hopefully it still has some spells left in it...`,p=>{p[1].gain('magic wand');});
+			new G.act(newItemMult*0.005,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|goth%0.2|the_gift%0.2|any%0.5 !ancient_scepter|naive%0.2'],`[BLUE][1] catches a strange glow in the corner of [1:their] eye and discovers an ancient scepter!<br>Arcane magic courses through [1:their] body as [1:their] fingers touch the carved wood.`,p=>{p[1].gain('ancient scepter');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|marksmen%0.1|bulky%0.1|artist%0.1|inventor%0.1 !high_pressure_garden_hose'],`[BLUE][1] digs up a discarded tube composed of an unusually resiliant material!<br>Seems like it could be useful in a lot of situations...`,p=>{p[1].gain('high pressure garden hose');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|marksmen%0.1|ninja%0.1 !pyromania%0.2|naive%0.2'],`[BLUE][1] glances around and suddenly notices something shiny on the ground!<br>It turns out to be a deep, mesmerizing crystal of sapphire, magically cold to the touch.`,p=>{p[1].gain('freezing sapphire');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|the_gift%0.3|vigilant%0.2 !topaz_with_a_hole|topaz_on_a_stick|goth%0.2|naive%0.5'],`[BLUE][1] notices something shiny on the ground. <br>Thinking it was a coin, [1:they] picks it up purely out of boredom, but then realizes that it is actually a piece of brilliantly cut topaz with a hole on one side. This could be useful, but [1:they] don\'t quite yet know why...`,p=>{p[1].gain('topaz with a hole');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|ninja%0.5|survivalist%0.2|any%0.5 !shuriken !peaceful'],`[BLUE][1] finds a [bundle|box|pile] of throwing weapons, including some knives and shuriken.<br>[1] is already practicing with a few tosses.`,p=>{p[1].gain('shuriken');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|suicidal%0.5|sociopath%0.2|goth%0.2|any%0.5 !cursed_knife|lucky_coin%0.8|survivalist%0.5|peaceful%0.5'],`[RED][1] finds an old knife with dried blood.<br>Once [1:they] pick it up, they can't seem to get rid of it...`,p=>{p[1].gain('cursed knife');});
             //Other Stuff (30%) -TW
 			new G.act(newItemMult*0.01,['scrappy%0.2|vigilant%0.2|lucky_coin%0.2|peaceful%0.2|the_gift%0.5|any%0.5 !wish_ring'],`[BLUE][1] was lost in [1:their] thoughts... The next thing [1:g|he knows|she knows|they know|it knows], [1:g|he's|she's|they've|it has] found a wish ring.<br>Hopefully [1:they]'ll be responsible with it.`,p=>{p[1].gain('wish ring');});
 			
-            new G.act(newItemMult*0.03,[inanimateItemFind+'|clumsy%0.5|marksmen%0.2|the_gift%0.2|any%0.5 !lucky_coin','- handgun|shotgun|bow|lasergun|slingshot'],`[BLUE][1] [notices|trips over|falls into] something shining on the ground.<br> When [1:they] go to pick up the coin, a shot goes right over their head. How lucky!`,p=>{p[1].gain('lucky coin');});
-            new G.act(newItemMult*0.04,[inanimateItemFind+'|lunatic%0.5|the_gift%0.5|any%0.5 !random_orb'],`[BLUE][1] can't believe their luck, a random item orb!<br>Across it's shiny surface, pictures between many other possibilities arise.<br>What will it turn into?`,p=>{p[1].gain('random orb');});
-            new G.act(newItemMult*0.03,[inanimateItemFind+'|kind%0.2|bulky%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !kite_shield'],`[BLUE][1] somehow finds a knightly kite shield.<br>[1] practices fending off attackers with their new shield.`,p=>{p[1].gain('kite shield');});
-            new G.act(newItemMult*0.03,[inanimateItemFind+'|kind%0.2|bulky%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !riot_shield'],`[BLUE][1] somehow finds a riot shield.<br>[1] begins crouching and acting all tactical!`,p=>{p[1].gain('riot shield');});
-			new G.act(newItemMult*0.05,[inanimateItemFind+'|medic%0.5|lucky_coin%0.2|survivalist%0.2|any%0.5 !medicine'],`[BLUE][1] [finds|scavenges] some [medicine|medicine|pills|ground medical herbs|herbal remedies].<br>[1] keeps it all in a bottle for later.`,p=>{p[1].gain('medicine');});
-			new G.act(newItemMult*0.04,[inanimateItemFind+'|medic%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !first_aid_kit'],`[BLUE][1] finds a small [box|bag|kit] with a [camo pattern|red cross|green cross|unassuming apperance].<br>It's full of medical supplies, score!`,p=>{p[1].gain('first aid kit');});
-			new G.act(newItemMult*0.04,[inanimateItemFind+'|medic%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !tourniquet'],`[BLUE][1] finds a small [box|bag|kit] with a camo pattern.<br>Inside is a wrapped [tourniquet|"Combat Application Tourniquet"], could be useful in an emergency.`,p=>{p[1].gain('tourniquet');});
-			new G.act(newItemMult*0.03,[inanimateItemFind+'|medic%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !AED'],`[BLUE][1] somehow finds a riot shield.<br>[1] begins crouching and acting all tactical!`,p=>{p[1].gain('AED');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|goth%0.3|the_gift%0.1|artist%0.5|inventor%0.1 !snake_charmer\'s_flute|naive%0.5'],`[BLUE][1] finds a rustic and faded golden flute on the ground. <br>Not thinking much of it at first, [1:they] picks it up and tries to play it, but what no one expected was the ascension of a snake out of the ground! This could be very valuable.`,p=>{p[1].gain('snake charmer\'s flute');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|goth%0.5|the_gift%0.3|cowardly%0.2 !respawn_anchor|will_respawn|naive%0.2|suicidal'],`[BLUE][1] finds a strange stone; it is pitch-black with a hint of purple, alongside two large depressions on the surface. Being so distinct to the touch, curiosity overwhelms [1:them] and [1:they] decided to launch an investigation into its purpose.<br>Prying it away from the ground, [1:he was|she was|they were] shocked to discover a manual directly beneath it, detailing its usage as the container of souls...`,p=>{p[1].gain('respawn anchor');});
-			new G.act(newItemMult*0.02,[inanimateItemFind+'|lucky_coin%0.2|the_gift%0.5|kind%0.3 !angel_in_a_bottle|angel\'s_revival|suicidal'],`[BLUE][1] finds a strange bottle lying on the ground. It has a dim light suspended inside, but when [1:they] got closer to get a better look, the light appeared to be speaking to [1:them]!<br>[1:g|He|She|They|It] immediately pocketed it to use it as a potent charm of life.`,p=>{p[1].gain('angel in a bottle');});
+            new G.act(newItemMult*0.03,['scrappy%0.5|vigilant%0.2|clumsy%0.5|marksmen%0.2|the_gift%0.2|any%0.5 !lucky_coin','- handgun|shotgun|bow|lasergun|slingshot'],`[BLUE][1] [notices|trips over|falls into] something shining on the ground.<br> When [1:they] go to pick up the coin, a shot goes right over their head. How lucky!`,p=>{p[1].gain('lucky coin');});
+            new G.act(newItemMult*0.04,['scrappy%0.5|vigilant%0.2|lunatic%0.5|the_gift%0.5|any%0.5 !random_orb'],`[BLUE][1] can't believe their luck, a random item orb!<br>Across it's shiny surface, pictures between many other possibilities arise.<br>What will it turn into?`,p=>{p[1].gain('random orb');});
+            new G.act(newItemMult*0.03,['scrappy%0.5|vigilant%0.2|kind%0.2|bulky%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !kite_shield'],`[BLUE][1] somehow finds a knightly kite shield.<br>[1] practices fending off attackers with their new shield.`,p=>{p[1].gain('kite shield');});
+            new G.act(newItemMult*0.03,['scrappy%0.5|vigilant%0.2|kind%0.2|bulky%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !riot_shield'],`[BLUE][1] somehow finds a riot shield.<br>[1] begins crouching and acting all tactical!`,p=>{p[1].gain('riot shield');});
+			new G.act(newItemMult*0.05,['scrappy%0.5|vigilant%0.2|medic%0.5|lucky_coin%0.2|survivalist%0.2|any%0.5 !medicine'],`[BLUE][1] [finds|scavenges] some [medicine|medicine|pills|ground medical herbs|herbal remedies].<br>[1] keeps it all in a bottle for later.`,p=>{p[1].gain('medicine');});
+			new G.act(newItemMult*0.04,['scrappy%0.5|vigilant%0.2|medic%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !first_aid_kit'],`[BLUE][1] finds a small [box|bag|kit] with a [camo pattern|red cross|green cross|unassuming apperance].<br>It's full of medical supplies, score!`,p=>{p[1].gain('first aid kit');});
+			new G.act(newItemMult*0.04,['scrappy%0.5|vigilant%0.2|medic%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !tourniquet'],`[BLUE][1] finds a small [box|bag|kit] with a camo pattern.<br>Inside is a wrapped [tourniquet|"Combat Application Tourniquet"], could be useful in an emergency.`,p=>{p[1].gain('tourniquet');});
+			new G.act(newItemMult*0.03,['scrappy%0.5|vigilant%0.2|medic%0.2|lucky_coin%0.2|survivalist%0.2|any%0.5 !AED'],`[BLUE][1] somehow finds a riot shield.<br>[1] begins crouching and acting all tactical!`,p=>{p[1].gain('AED');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|goth%0.3|the_gift%0.1|artist%0.5|inventor%0.1 !snake_charmer\'s_flute|naive%0.5'],`[BLUE][1] finds a rustic and faded golden flute on the ground. <br>Not thinking much of it at first, [1:they] picks it up and tries to play it, but what no one expected was the ascension of a snake out of the ground! This could be very valuable.`,p=>{p[1].gain('snake charmer\'s flute');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|goth%0.5|the_gift%0.3|cowardly%0.2 !respawn_anchor|will_respawn|naive%0.2|suicidal'],`[BLUE][1] finds a strange stone; it is pitch-black with a hint of purple, alongside two large depressions on the surface. Being so distinct to the touch, curiosity overwhelms [1:them] and [1:they] decided to launch an investigation into its purpose.<br>Prying it away from the ground, [1:he was|she was|they were] shocked to discover a manual directly beneath it, detailing its usage as the container of souls...`,p=>{p[1].gain('respawn anchor');});
+			new G.act(newItemMult*0.02,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|the_gift%0.5|kind%0.3 !angel_in_a_bottle|angel\'s_revival|suicidal'],`[BLUE][1] finds a strange bottle lying on the ground. It has a dim light suspended inside, but when [1:they] got closer to get a better look, the light appeared to be speaking to [1:them]!<br>[1:g|He|She|They|It] immediately pocketed it to use it as a potent charm of life.`,p=>{p[1].gain('angel in a bottle');});
 
-			new G.act(newItemMult*0.03,[inanimateItemFind+'|lucky_coin%0.2|seductive%0.5|kind%0.2 !vanilla_ice_cream|naive%0.2'],`[BLUE][1] suddenly finds a discarded cone of vanilla-flavored ice cream, seemingly straight of the freezer!<br>Somehow, it has not melted.`,p=>{p[1].gain('vanilla ice cream');});
-			new G.act(newItemMult*0.03,[inanimateItemFind+'|lucky_coin%0.2|the_gift%0.3 !mint_essence|mint_enhanced|goth%0.1'],`[BLUE][1] finds a turquoise colored crystal sticking out of the ground! It has a distinctly strong minty smell to it.<br>[1:g|He|She|They|It] decides to pocket it for potential future [investigations|inspections|use] - perhaps it could even be edible? After all, it does strangely resemble rock candy...`,p=>{p[1].gain('mint essence');});
+			new G.act(newItemMult*0.03,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|seductive%0.5|kind%0.2 !vanilla_ice_cream|naive%0.2'],`[BLUE][1] suddenly finds a discarded cone of vanilla-flavored ice cream, seemingly straight of the freezer!<br>Somehow, it has not melted.`,p=>{p[1].gain('vanilla ice cream');});
+			new G.act(newItemMult*0.03,['scrappy%0.5|vigilant%0.2|lucky_coin%0.2|the_gift%0.3 !mint_essence|mint_enhanced|goth%0.1'],`[BLUE][1] finds a turquoise colored crystal sticking out of the ground! It has a distinctly strong minty smell to it.<br>[1:g|He|She|They|It] decides to pocket it for potential future [investigations|inspections|use] - perhaps it could even be edible? After all, it does strangely resemble rock candy...`,p=>{p[1].gain('mint essence');});
 			//Combo Events (10%) -TW
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|lucky_coin%0.2|sociopath%0.2|survivalist%0.2|any%0.5 !axe%0.8|leather_scraps%0.8|peaceful%0.5|kind%0.2'],`[BLUE][1] finds a dead body dressed in leather and holding an axe.<br>[1] loots the body, maybe some of this could be useful?`,p=>{p[1].gain('axe');p[1].gain('leather scraps');});
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|lucky_coin%0.2|marksmen%0.2|any%0.5 !handgun%0.8|kevlar_vest%0.8|peaceful%0.5'],`[BLUE][1] finds a box with a gun, ammo, and vest inside.<br>Who left this here...?`,p=>{p[1].gain('handgun');p[1].gain('kevlar vest');});
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|lucky_coin%0.2|the_gift%0.5|naive%0.2|any%0.5 !magic_wand%0.8|magic_dust%0.8'],`[BLUE][1] follows a trail of sparkly dust to a still sparking wand.<br>It continues to leak the colorful dust long after [1] picks it up.`,p=>{p[1].gain('magic wand');p[1].gain('magic dust');});
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|lucky_coin%0.2|annoying%0.2|any%0.5 !slingshot%0.8|grenade%0.8|peaceful%0.8'],`[BLUE][1] finds an abandoned slingshot with a single grenade next to it.<br>That could be an interesting combination...`,p=>{p[1].gain('slingshot');p[1].gain('grenade');});
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|lucky_coin%0.2|sociopath%0.2|survivalist%0.2|any%0.33 !sword%0.8|kite_shield%0.8|knight_armor%0.8|peaceful%0.5|kind%0.2'],`[BLUE][1] finds the dead body of an armored knight<br>[1] begins putting on the armor before grabing the sword and shield.<br>Hopefully, [1]'s fate won't be the same.`,p=>{p[1].gain('sword');p[1].gain('kite shield');p[1].gain('knight armor');});
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|lucky_coin%0.2|marksmen%0.2|any%0.33 !shotgun%0.8|riot_shield%0.8|combat_gear%0.8|peaceful%0.5'],`[BLUE][1] gets really lucky and finds a whole bunch of gear!<br>Shotgun, riot shield, and body armor all at [1]'s disposal!`,p=>{p[1].gain('shotgun');p[1].gain('riot shield');p[1].gain('combat gear');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|lucky_coin%0.2|sociopath%0.2|survivalist%0.2|any%0.5 !axe%0.8|leather_scraps%0.8|peaceful%0.5|kind%0.2'],`[BLUE][1] finds a dead body dressed in leather and holding an axe.<br>[1] loots the body, maybe some of this could be useful?`,p=>{p[1].gain('axe');p[1].gain('leather scraps');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|lucky_coin%0.2|marksmen%0.2|any%0.5 !handgun%0.8|kevlar_vest%0.8|peaceful%0.5'],`[BLUE][1] finds a box with a gun, ammo, and vest inside.<br>Who left this here...?`,p=>{p[1].gain('handgun');p[1].gain('kevlar vest');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|lucky_coin%0.2|the_gift%0.5|naive%0.2|any%0.5 !magic_wand%0.8|magic_dust%0.8'],`[BLUE][1] follows a trail of sparkly dust to a still sparking wand.<br>It continues to leak the colorful dust long after [1] picks it up.`,p=>{p[1].gain('magic wand');p[1].gain('magic dust');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|lucky_coin%0.2|annoying%0.2|any%0.5 !slingshot%0.8|grenade%0.8|peaceful%0.8'],`[BLUE][1] finds an abandoned slingshot with a single grenade next to it.<br>That could be an interesting combination...`,p=>{p[1].gain('slingshot');p[1].gain('grenade');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|lucky_coin%0.2|sociopath%0.2|survivalist%0.2|any%0.33 !sword%0.8|kite_shield%0.8|knight_armor%0.8|peaceful%0.5|kind%0.2'],`[BLUE][1] finds the dead body of an armored knight<br>[1] begins putting on the armor before grabing the sword and shield.<br>Hopefully, [1]'s fate won't be the same.`,p=>{p[1].gain('sword');p[1].gain('kite shield');p[1].gain('knight armor');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|lucky_coin%0.2|marksmen%0.2|any%0.33 !shotgun%0.8|riot_shield%0.8|combat_gear%0.8|peaceful%0.5'],`[BLUE][1] gets really lucky and finds a whole bunch of gear!<br>Shotgun, riot shield, and body armor all at [1]'s disposal!`,p=>{p[1].gain('shotgun');p[1].gain('riot shield');p[1].gain('combat gear');});
 			new G.act(newItemMult*0.01,['gremlin%0.5|scrappy%0.5|lunatic%0.5|the_gift%0.5|any%0.33 !wish_ring%0.8|lucky_coin%0.8|random_orb%0.8|survivalist%0.5'],`[BLUE][1] is plauged by weird dreams of a laughing god.<br>When [1:they] wakes, a strange orb, ring, and coin are left in [1]'s hands.`,p=>{p[1].gain('wish ring');p[1].gain('lucky coin');p[1].gain('random orb');});
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|medic%0.2|lucky_coin%0.2|any%0.25 !medicine%0.8|first_aid_kit%0.8|tourniquet%0.8|AED%0.8'],`[BLUE][1] somehow finds a whole [locker|backpack|broken vehicle] full of medical supplies in the middle of nowhere.<br>Medicine, bandages, gauze, even a tourniquet and AED!`,p=>{p[1].gain('medicine');p[1].gain('first aid kit');p[1].gain('tourniquet');p[1].gain('AED');});
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|lucky_coin%0.2|artist%0.2|any%0.25 !bikini%0.8|dapper_suit%0.8|parka%0.8|wizard_robe%0.8|survivalist%0.5'],`[BLUE][1] stumbles across an abandoned building.<br>It is some sort of dressing room, with all sorts of outfits, even a magic robe!<br>[1] isn't sure which to wear right now, so [1:they] grab them all.`,p=>{p[1].gain('bikini');p[1].gain('dapper suit');p[1].gain('parka');p[1].gain('wizard robe');});
-			new G.act(newItemMult*0.01,[inanimateItemFind+'|sociopath%0.2|survivalist%0.2|any%0.2 !sword%0.8|axe%0.8|cursed_knife%0.8|peaceful%0.8|kind%0.2','+ scrappy|lucky_coin%0.5|any%0.5 !sword%0.8|axe%0.8|peaceful%0.8'],`[BLUE][1] and [2] stumble across an old battlefield littered with weapons[and|, and though gruesome,] they [decide|team up to|dare each other] to pick through the remains.<br>[1] and [2] leave after grabbing some blades and axes, though [1] gets a weird feeling with the last one [1:they] grabbed...`,p=>{p[1].gain('sword');p[1].gain('axe');p[2].gain('sword');p[2].gain('axe');p[1].gain('cursed knife');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|medic%0.2|lucky_coin%0.2|any%0.25 !medicine%0.8|first_aid_kit%0.8|tourniquet%0.8|AED%0.8'],`[BLUE][1] somehow finds a whole [locker|backpack|broken vehicle] full of medical supplies in the middle of nowhere.<br>Medicine, bandages, gauze, even a tourniquet and AED!`,p=>{p[1].gain('medicine');p[1].gain('first aid kit');p[1].gain('tourniquet');p[1].gain('AED');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|lucky_coin%0.2|artist%0.2|any%0.25 !bikini%0.8|dapper_suit%0.8|parka%0.8|wizard_robe%0.8|survivalist%0.5'],`[BLUE][1] stumbles across an abandoned building.<br>It is some sort of dressing room, with all sorts of outfits, even a magic robe!<br>[1] isn't sure which to wear right now, so [1:they] grab them all.`,p=>{p[1].gain('bikini');p[1].gain('dapper suit');p[1].gain('parka');p[1].gain('wizard robe');});
+			new G.act(newItemMult*0.01,['scrappy%0.5|sociopath%0.2|survivalist%0.2|any%0.2 !sword%0.8|axe%0.8|cursed_knife%0.8|peaceful%0.8|kind%0.2','+ scrappy|lucky_coin%0.5|any%0.5 !sword%0.8|axe%0.8|peaceful%0.8'],`[BLUE][1] and [2] stumble across an old battlefield littered with weapons[and|, and though gruesome,] they [decide|team up to|dare each other] to pick through the remains.<br>[1] and [2] leave after grabbing some blades and axes, though [1] gets a weird feeling with the last one [1:they] grabbed...`,p=>{p[1].gain('sword');p[1].gain('axe');p[2].gain('sword');p[2].gain('axe');p[1].gain('cursed knife');});
 			
 			//Materials -TW
             new G.act(newMatMult*0.4,['scrappy%0.8|inventor%0.2|lucky_coin%0.2|any%0.5 !scrap_metal|naive%0.2'],`[BLUE][1] finds some chunks of metal scrap<br>Maybe [1:they] can make something out of it?`,p=>{p[1].gain('scrap metal');});
@@ -4409,10 +4196,7 @@ G={
             new G.act(newPetMult*0.01,['animal_ken%0.5|peaceful%0.2|kind%0.2|scrappy%0.2|rich%0.2|any%0.5 !pet_tiger|sociopath%0.8|survivalist%0.5'],`[BLUE][[1] is almost mauled by a raging tiger!<br>[1] removes the thorn from their paw, and the tiger quickly becomes the biggest, scariest, kitten.|[1] finds a starving tiger cub who's lost their mother.<br>[1] begins feeding it and teaching the tiger cub tricks.]`,p=>{p[1].gain('pet tiger');});
             new G.act(newPetMult*0.02,['animal_ken%0.5|peaceful%0.2|kind%0.2|scrappy%0.2|marksmen%0.2|any%0.5 !pet_hawk|sociopath%0.8|survivalist%0.5'],`[BLUE][1] finds an injured bird and nurturs them back to health.<br>The recovered hawk keeps circling around [1].`,p=>{p[1].gain('pet hawk');});
             new G.act(newPetMult*0.02,['peaceful%0.2|naive%0.5|annoying%0.5|scrappy%0.5|any%0.5 !pet_rock|sociopath%0.8|analytical%0.8|survivalist%0.8'],`[BLUE][1] picks up an unusual rock.<br>Maybe [1:they] can teach it some tricks...?`,p=>{p[1].gain('pet rock');});
-			// Flo's pets
-			new G.act(newPetMult*0.02,['animal_ken%0.5|scrappy%0.2|kind%0.2|survivalist%0.5 !mysterious_egg'],`[BLUE][1] [looks around and finds|gets hit on the head by|climbs a tree and finds|nearly steps on] a mysterious egg!`)
-			new G.act(newPetMult*0.02,['animal_ken%0.5|survivalist%0.5|peaceful%0.5|meek%0.5|w:rain%0.5 !pet_goldfish'], `[BLUE][1] [looks around and finds a puddle|finds a perfectly preserved bowl] with a Goldfish [inside|happily blubbing away|swimming cheerfully]!`)
-			new G.act(newPetMult*0.01,['w:rain%0.5|w:storm%0.5 !sociopath'], `[BLUE][1] rescues a goldfish from a nearby puddle! They're now best friends!`)
+			
 			// Theft - TW & Nyan Cat (& CursedSliver for adding the new items)
 			// - Melee
 			new G.act(lootDeadMult*0.025,[itemThief+' !peaceful|pitchfork|naive%0.5|meek%0.2','pitchfork dead !nihil'],`[BLUE][1] [stops in their tracks|freezes in fear|gasps in surprise] when [1:they] stumble upon [2]'s lifeless body.<br>Fearing for [1:their] own safety, [1] [grabs|takes|loots] the nearby pitchfork [from the ground|from [2]].`,p=>{p[1].gain('pitchfork');p[2].lose('pitchfork');});
@@ -4798,9 +4582,9 @@ G={
 				if (!this.team) { return true; }
 				return Math.random() < 1.5 * Math.sqrt(this.team.charsAlive / this.team.chars.length);
 			}
-			var injuredMinor='scratched%0.5|bruised%0.5|sick%0.5|dizzy%0.5|w:tornado%0.5|w:thunder%0.2|w:weird%0.2|w:drought%0.1|any%0.5 !bulky%0.1|stubborn%0.1|plot_armor%0.3 func:injuryFunc';
-			var injuredModerate='cut_up%0.5|broken%0.5|shot%0.5|singed%0.5|w:tornado%0.4|w:thunder%0.15|w:weird%0.1|w:drought%0.05|any%0.5 !bulky%0.2|stubborn%0.2|plot_armor%0.6 func:injuryFunc';
-			var injuredMajor='bleeding_out%0.5|burnt%0.5|missing_arm%0.5|missing_leg%0.5|w:tornado%0.3|w:thunder%0.1|any%0.5 !bulky%0.3|stubborn%0.3|plot_armor%0.9 func:injuryFunc';
+			var injuredMinor='scratched%0.5|bruised%0.5|sick%0.5|dizzy%0.5|any%0.5 !bulky%0.1|stubborn%0.1|plot_armor%0.3 func:injuryFunc';
+			var injuredModerate='cut_up%0.5|broken%0.5|shot%0.5|singed%0.5|any%0.5 !bulky%0.2|stubborn%0.2|plot_armor%0.6 func:injuryFunc';
+			var injuredMajor='bleeding_out%0.5|burnt%0.5|missing_arm%0.5|missing_leg%0.5|any%0.5 !bulky%0.3|stubborn%0.3|plot_armor%0.9 func:injuryFunc';
 			G.fitFuncs.combatFunc = function() {
 				if (!this.team) { return true; }
 				return Math.random() < 2 * this.team.charsAlive / this.team.chars.length;
@@ -5014,15 +4798,14 @@ G={
 				new G.act(perkAttackMult*attackFail*0.3,[hesitentKiller+' pet_tiger !animal_ken%0.5|sociopath%0.5|survivalist%0.2|rich%0.2','- any animal_ken%0.8|peaceful%0.2|kind%0.2|rich%0.2 !meek%0.2|naive%0.2|cowardly%0.2'],`[1] sics [1:their] pet tiger on [2]!<br>[2] [never breaks eye contact with|never turns [2:their] back to|avoids getting caught by] the [apex|deadly|massive] [predator|carnivore|striped feline|beast] until the tiger finally loses interest and leaves.`);
 			
 			// Injury Events
-			var healthMinor = 'bulky%0.3|stubborn%0.3|plot_armor%0.2|any%0.5 !scratched%0.2|bruised%0.2|sick%0.2|dizzy%0.2 w:sunny|any%0.66 !w:rainy%0.2|w:drought%0.2|w:thunder%0.3|w:tornado%0.4';
-			var healthModerate = 'bulky%0.2|stubborn%0.2|plot_armor%0.4|any%0.5 !cut_up%0.3|broken%0.3|shot%0.3|singed%0.3 w:sunny|any%0.66 !w:rainy%0.25|w:drought%0.25|w:thunder%0.6|w:tornado%0.9';
-			var healthMajor = 'bulky%0.1|stubborn%0.1|plot_armor%0.6|any%0.5 !bleeding_out%0.5|burnt%0.5|missing_arm%0.5|missing_leg%0.5|badly_poisoned%0.5 w:sunny|any%0.66 !w:cloudy%0.25|w:drought%0.25|w:weird%0.5|w:rainy%0.75|w:thunder%0.9|w:tornado';
-
-			var healthMult = 1.5;
-			var healthRecover = healthMult * 2;
-			var healthWorsen = healthMult * 0.5;
-			var healthHeal = healthMult * 2;
-			var healthDeath = healthMult * 0.75;
+			var healthMinor='bulky%0.3|stubborn%0.3|plot_armor%0.2|any%0.5 !scratched%0.2|bruised%0.2|sick%0.2|dizzy%0.2';
+			var healthModerate='bulky%0.2|stubborn%0.2|plot_armor%0.4|any%0.5 !cut_up%0.3|broken%0.3|shot%0.3|singed%0.3';
+			var healthMajor='bulky%0.1|stubborn%0.1|plot_armor%0.6|any%0.5 !bleeding_out%0.5|burnt%0.5|missing_arm%0.5|missing_leg%0.5|badly_poisoned%0.5';
+			
+			var healthRecover=2;
+			var healthWorsen=0.5;
+			var healthHeal=2;
+			var healthDeath=0.75;
 
 			var createRevivalChanceFunc = function(chance) {
 				return function() {
@@ -5049,29 +4832,29 @@ G={
 			new G.act(healthRecover*0.3,['sick '+healthMinor],`[1] recovers from feeling [sick|ill].`,p=>{p[1].lose(`sick`);});
 				new G.act(healthWorsen*0.1,['sick !poisoned|medicine%0.5|medic%0.2|first_aid_kit%0.2|bulky%0.2 '+injuredMinor],`[RED][1] is feeling even worse as [1:their] fever heightens and [1:their] illness leads to a poisoning of [1:their] blood.`,p=>{p[1].gain(`poisoned`);});
 			// - Moderate
-			new G.act(healthRecover*0.3,['cut_up '+healthModerate],`[1] has partly recovered from [1:their] [wounds|lacerations|deep cuts].`,p=>{p[1].lose(`cut up`);p[1].gain('scratched');});
-				new G.act(healthWorsen*0.15,['cut_up !bleeding_out|first_aid_kit%0.5|medic%0.5|tourniquet%0.2 '+injuredModerate],`[RED][1] worsens [1:their] [wounds|lacerations|deep cuts] further [as they go untreated|in an accident], and is beginning to bleed out...`,p=>{p[1].gain(`bleeding out`);});
-				new G.act(healthWorsen*0.15,['cut_up !sick|first_aid_kit%0.5|medicine%0.5|medic%0.5|tourniquet%0.2 '+injuredModerate],`[RED][1] has become [ill|feverish] from the infection in [1:their] [wounds|lacerations|cuts].`,p=>{p[1].gain(`sick`);});
-			new G.act(healthRecover*0.3,['broken '+healthModerate],`[1] doesn't feel in as much pain from [1:their] internal injuries.<br>Nonetheless, [1] begins to feel a bit feverish.`,p=>{p[1].lose(`broken`);p[1].gain('sick');});
-				new G.act(healthWorsen*0.15,['broken !sick|first_aid_kit%0.5|medic%0.5|medicine%0.5 '+injuredModerate],`[RED][1] becomes [sick|ill] from the pain of [1:their] internal injuries.`,p=>{p[1].gain(`sick`);});
-			new G.act(healthRecover*0.3,['shot '+healthModerate],`[1] has tried treating [1:their] open wound.<br>While mostly successful, [1:they] still feel sick to [1:their] stomach.`,p=>{p[1].lose(`shot`);p[1].gain('sick');});
-				new G.act(healthWorsen*0.3,['shot !bleeding_out|first_aid_kit%0.5|medic%0.5|tourniquet%0.2 '+injuredModerate],`[RED][1] is becoming light headed as the bleeding from where [1:they] were shot continues...`,p=>{p[1].gain(`bleeding out`);});
-			new G.act(healthRecover*0.3,['singed '+healthModerate],`[1]'s burns have mostly healed, but [1:they] still feel light-headed from pain and blood loss.`,p=>{p[1].lose(`singed`);p[1].gain('sick');});
-				new G.act(healthWorsen*0.3,['singed !cut_up|medic%0.8|first_aid_kit%0.5|medicine%0.5 '+injuredModerate],`[RED][1] tries removing some improvised bandages on [1:their] burnt [skin|flesh|body] but inflicts more [wounds|lacerations] as the burnt [skin|flesh] too easily rips off.`,p=>{p[1].gain(`cut up`);});
-			new G.act(healthRecover*0.3,['poisoned '+healthModerate],`[1] still has the chills and a fever as [1:their] poison runs its course.<br>However, [1] is starting to recover!`,p=>{p[1].lose(`poisoned`);p[1].gain('sick');});
-				new G.act(healthWorsen*0.3,['poisoned !badly_poisoned|medicine%0.5|medic%0.5|bulky%0.2 '+injuredModerate],`[RED][1] continues to grow worse as [1:their] poisoned body begins shutting down...`,p=>{p[1].gain(`badly poisoned`);});
+			new G.act(healthRecover*0.2,['cut_up '+healthModerate],`[1] has partly recovered from [1:their] [wounds|lacerations|deep cuts].`,p=>{p[1].lose(`cut up`);p[1].gain('scratched');});
+				new G.act(healthWorsen*0.1,['cut_up !bleeding_out|first_aid_kit%0.5|medic%0.5|tourniquet%0.2 '+injuredModerate],`[RED][1] worsens [1:their] [wounds|lacerations|deep cuts] further [as they go untreated|in an accident], and is beginning to bleed out...`,p=>{p[1].gain(`bleeding out`);});
+				new G.act(healthWorsen*0.1,['cut_up !sick|first_aid_kit%0.5|medicine%0.5|medic%0.5|tourniquet%0.2 '+injuredModerate],`[RED][1] has become [ill|feverish] from the infection in [1:their] [wounds|lacerations|cuts].`,p=>{p[1].gain(`sick`);});
+			new G.act(healthRecover*0.2,['broken '+healthModerate],`[1] doesn't feel in as much pain from [1:their] internal injuries.<br>Nonetheless, [1] begins to feel a bit feverish.`,p=>{p[1].lose(`broken`);p[1].gain('sick');});
+				new G.act(healthWorsen*0.2,['broken !sick|first_aid_kit%0.5|medic%0.5|medicine%0.5 '+injuredModerate],`[RED][1] becomes [sick|ill] from the pain of [1:their] internal injuries.`,p=>{p[1].gain(`sick`);});
+			new G.act(healthRecover*0.2,['shot '+healthModerate],`[1] has tried treating [1:their] open wound.<br>While mostly successful, [1:they] still feel sick to [1:their] stomach.`,p=>{p[1].lose(`shot`);p[1].gain('sick');});
+				new G.act(healthWorsen*0.2,['shot !bleeding_out|first_aid_kit%0.5|medic%0.5|tourniquet%0.2 '+injuredModerate],`[RED][1] is becoming light headed as the bleeding from where [1:they] were shot continues...`,p=>{p[1].gain(`bleeding out`);});
+			new G.act(healthRecover*0.2,['singed '+healthModerate],`[1]'s burns have mostly healed, but [1:they] still feel light-headed from pain and blood loss.`,p=>{p[1].lose(`singed`);p[1].gain('sick');});
+				new G.act(healthWorsen*0.2,['singed !cut_up|medic%0.8|first_aid_kit%0.5|medicine%0.5 '+injuredModerate],`[RED][1] tries removing some improvised bandages on [1:their] burnt [skin|flesh|body] but inflicts more [wounds|lacerations] as the burnt [skin|flesh] too easily rips off.`,p=>{p[1].gain(`cut up`);});
+			new G.act(healthRecover*0.2,['poisoned '+healthModerate],`[1] still has the chills and a fever as [1:their] poison runs its course.<br>However, [1] is starting to recover!`,p=>{p[1].lose(`poisoned`);p[1].gain('sick');});
+				new G.act(healthWorsen*0.2,['poisoned !badly_poisoned|medicine%0.5|medic%0.5|bulky%0.2 '+injuredModerate],`[RED][1] continues to grow worse as [1:their] poisoned body begins shutting down...`,p=>{p[1].gain(`badly poisoned`);});
 			// - Major
-			new G.act(healthRecover*0.45,['bleeding_out any '+healthMajor],`Despite the severity of [1:their] injuries, [1] has stopped bleeding so harshly.<br>Maybe [1] still has a chance?`,p=>{p[1].lose(`bleeding out`);});
-				new G.act(healthDeath*1.8,['bleeding_out any !tourniquet%0.8|first_aid_kit%0.5|medic%0.5 '+injuredMajor],`[RED][1] [dies|falls|drops] from blood loss.`,p=>{p[1].die(`blood loss`);});
-			new G.act(healthRecover*0.45,['burnt any '+healthMajor],`[1] has toughened out the worst of [1:their] burns, but is far from fully recovered.`,p=>{p[1].lose(`burnt`);p[1].gain('singed');});
-				new G.act(healthDeath*1.8,['burnt any !first_aid_kit%0.5|medicine%0.5|medic%0.5 '+injuredMajor],`[RED][1] [dies|falls|drops] from their extensive burns.`,p=>{p[1].die(`burn wounds`);});
-			new G.act(healthRecover*0.45,['badly_poisoned any '+healthMajor],`[1] begins recovering from [1:their] severe [poison|toxic] build up, but hasn't fully recovered yet.`,p=>{p[1].lose(`badly poisoned`);p[1].gain('poisoned');});
-				new G.act(healthDeath*1.8,['badly_poisoned any !medicine%0.5|medic%0.5 '+injuredMajor],`[RED][1] [dies|falls|loses] to the [severe poison|toxic buildup] within them.`,p=>{p[1].die(`poison`);});
+			new G.act(healthRecover*0.1,['bleeding_out any '+healthMajor],`Despite the severity of [1:their] injuries, [1] has stopped bleeding so harshly.<br>Maybe [1] still has a chance?`,p=>{p[1].lose(`bleeding out`);});
+				new G.act(healthDeath*0.7,['bleeding_out any !tourniquet%0.8|first_aid_kit%0.5|medic%0.5 '+injuredMajor],`[RED][1] [dies|falls|drops] from blood loss.`,p=>{p[1].die(`blood loss`);});
+			new G.act(healthRecover*0.1,['burnt any '+healthMajor],`[1] has toughened out the worst of [1:their] burns, but is far from fully recovered.`,p=>{p[1].lose(`burnt`);p[1].gain('singed');});
+				new G.act(healthDeath*0.7,['burnt any !first_aid_kit%0.5|medicine%0.5|medic%0.5 '+injuredMajor],`[RED][1] [dies|falls|drops] from their extensive burns.`,p=>{p[1].die(`burn wounds`);});
+			new G.act(healthRecover*0.1,['badly_poisoned any '+healthMajor],`[1] begins recovering from [1:their] severe [poison|toxic] build up, but hasn't fully recovered yet.`,p=>{p[1].lose(`badly poisoned`);p[1].gain('poisoned');});
+				new G.act(healthDeath*0.7,['badly_poisoned any !medicine%0.5|medic%0.5 '+injuredMajor],`[RED][1] [dies|falls|loses] to the [severe poison|toxic buildup] within them.`,p=>{p[1].die(`poison`);});
 			// - Via magical means
-			new G.act(createCriticalHealChanceFunc(healthHeal*0.6),['hot_chocolate injured !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [magical|fragrant] hot chocolate and [drinks|sips on] it, recovering from [1:their] injuries!`,p=>{p[1].has('hot chocolate').uses--; if (p[1].has('hot chocolate').uses <= 0 && Math.random() < 0.4) { p[1].lose('hot chocolate'); } p[1].healInjuries(); });
-			new G.act(createCriticalHealChanceFunc(healthHeal*0.6),['batch_of_cookies ailed !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [delicious|still-hot] batch of cookies and [eats|snacks on] it, alleviating [1:their] ailments!`,p=>{p[1].has('batch of cookies').uses--; if (p[1].has('batch of cookies').uses <= 0 && Math.random() < 0.4) { p[1].lose('batch of cookies'); } p[1].cureAilments(); });
-			new G.act(createCriticalHealChanceFunc(healthHeal*0.3),['cookie_dough ailed !sick !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [raw |]cookie dough and [eats|snacks on] it, alleviating [1:their] ailments!`,p=>{p[1].has('cookie dough').uses--; if (p[1].has('cookie dough').uses <= 0) { p[1].lose('cookie dough'); } p[1].cureAilments(); });
-			new G.act(createCriticalHealChanceFunc(healthHeal*0.3),['cookie_dough ailed !survivalist%0.3 !unconscious|shell-shocked'],`[1] takes out [1:their] [raw |]cookie dough and [eats|snacks on] it, alleviating [1:their] ailments! However, soon after consuming it, [1:they] begin feeling a little sick and nauseous...`,p=>{p[1].has('cookie dough').uses--; if (p[1].has('cookie dough').uses <= 0) { p[1].lose('cookie dough'); } p[1].gain('sick'); p[1].gain('dizzy'); p[1].gain('dazed'); });
+			new G.act(healthHeal*createCriticalHealChanceFunc(0.6),['hot_chocolate injured !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [magical|fragrant] hot chocolate and [drinks|sips on] it, recovering from [1:their] injuries!`,p=>{p[1].has('hot chocolate').uses--; if (p[1].has('hot chocolate').uses <= 0 && Math.random() < 0.4) { p[1].lose('hot chocolate'); } p[1].healInjuries(); });
+			new G.act(healthHeal*createCriticalHealChanceFunc(0.6),['batch_of_cookies ailed !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [delicious|still-hot] batch of cookies and [eats|snacks on] it, alleviating [1:their] ailments!`,p=>{p[1].has('batch of cookies').uses--; if (p[1].has('batch of cookies').uses <= 0 && Math.random() < 0.4) { p[1].lose('batch of cookies'); } p[1].cureAilments(); });
+			new G.act(healthHeal*createCriticalHealChanceFunc(0.3),['cookie_dough ailed !sick !unconscious|shell-shocked'],`[BLUE][1] takes out [1:their] [raw |]cookie dough and [eats|snacks on] it, alleviating [1:their] ailments!`,p=>{p[1].has('cookie dough').uses--; if (p[1].has('cookie dough').uses <= 0) { p[1].lose('cookie dough'); } p[1].cureAilments(); });
+			new G.act(healthHeal*createCriticalHealChanceFunc(0.3),['cookie_dough ailed !survivalist%0.3 !unconscious|shell-shocked'],`[1] takes out [1:their] [raw |]cookie dough and [eats|snacks on] it, alleviating [1:their] ailments! However, soon after consuming it, [1:they] begin feeling a little sick and nauseous...`,p=>{p[1].has('cookie dough').uses--; if (p[1].has('cookie dough').uses <= 0) { p[1].lose('cookie dough'); } p[1].gain('sick'); p[1].gain('dizzy'); p[1].gain('dazed'); });
 			// - First Aid Self
 			new G.act(healthHeal*0.5,['bruised|sick|dizzy medicine medic%0.8|analytical%0.2|first_aid_kit%0.2|any%0.5'],`[BLUE][1] takes some medication to take the edge off [1:their] pain, feeling better and more clear headed overall.`,p=>{p[1].lose(`bruised`);p[1].lose(`sick`);p[1].lose(`dizzy`);});
 			new G.act(healthHeal*0.5,['cut_up|shot|scratched first_aid_kit%0.8|medic%0.5|medicine%0.2|roll_of_fabric%0.2|any%0.2'],`[BLUE][1] [carefully|calmly|expertly] treats [1:their] own [wounds|lacerations] with what supplies [1:g|he has|she has|they have|it has], stopping any bleeding and preventing future infection.`,p=>{p[1].lose(`shot`);p[1].lose(`cut up`);p[1].lose(`scratched`);});
@@ -5092,13 +4875,13 @@ G={
 
 			// Events for the Dead
             new G.act(healthHeal*0.4,['medic%0.5|leader%0.5|kind%0.5|analytical%0.2|any%0.5 !sociopath%0.8|AED%0.8|survivalist%0.5|devious%0.2|meek%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[1] tries desperately to perform CPR on [2], but [2:they] just won't wake up...`);
-				new G.act(createRevivalChanceFunc(healthHeal*0.075),['medic%0.5|leader%0.2|kind%0.2|analytical%0.2|any%0.2 !sociopath%0.8|AED%0.8|survivalist%0.5|devious%0.2|meek%0.2','+ dead bulky%0.5|stubborn%0.5|survivalist%0.5|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] tries [desperately|calmly|expertly] to perform CPR on [2]...<br>After a few agonizing [seconds|moments|cycles|minutes], [2] begins to breath again!<br>[2] slowly wakes up from death's door, will [2:they] survive?`,p=>{p[2].minimumRevive('CPR', p[1]);});
+				new G.act(healthHeal*createRevivalChanceFunc(0.075),['medic%0.5|leader%0.2|kind%0.2|analytical%0.2|any%0.2 !sociopath%0.8|AED%0.8|survivalist%0.5|devious%0.2|meek%0.2','+ dead bulky%0.5|stubborn%0.5|survivalist%0.5|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] tries [desperately|calmly|expertly] to perform CPR on [2]...<br>After a few agonizing [seconds|moments|cycles|minutes], [2] begins to breath again!<br>[2] slowly wakes up from death's door, will [2:they] survive?`,p=>{p[2].minimumRevive('CPR', p[1]);});
 			new G.act(healthHeal*0.5,['AED medic%0.5|leader%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[BLUE][1] [begins|keeps|tries] using [1:their] AED on [2]...<br>CLEAR!<br>[2] still won't wake up. [1] keeps trying to use CPR and the AED anyway...`);
-				new G.act(createRevivalChanceFunc(healthHeal*0.35),['AED medic%0.8|leader%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.5|stubborn%0.5|survivalist%0.5|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] [begins|keeps|tries] using [1:their] AED on [2]...<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [2] [is woken|comes back from|revives from] the edge of death!`,p=>{p[2].minimumRevive('AED', p[1]);});
-				new G.act(healthHeal*0.2,['AED medic%0.5|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ medic%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[BLUE][1] and [2] coordinate together to perform CPR and use [1]'s AED on [3].<br>CLEAR!<br>[3] still won't wake up. [1] and [2] keeps trying to use CPR and the AED anyway...`);
-				new G.act(createRevivalChanceFunc(healthHeal*0.15),['AED medic%0.8|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ medic%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.2|stubborn%0.2|survivalist%0.2|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [1]'s AED on [3].<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [3] [is woken|comes back from|revives from] the edge of death!`,p=>{p[3].minimumRevive('CPR and AED', [p[1], p[2]]);});
-				new G.act(healthHeal*0.1,['medic%0.5|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ AED medic%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[BLUE][1] and [2] coordinate together to perform CPR and use [2]'s AED on [3].<br>CLEAR!<br>[3] still won't wake up. [1] and [2] keeps trying to use CPR and the AED anyway...`);
-				new G.act(createRevivalChanceFunc(healthHeal*0.075),['medic%0.8|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ AED medic%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.2|stubborn%0.2|survivalist%0.2|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [2]'s AED on [3].<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [3] [is woken|comes back from|revives from] the edge of death!`,p=>{p[3].minimumRevive('CPR and AED', [p[1], p[2]]);});
+				new G.act(healthHeal*createRevivalChanceFunc(0.35),['AED medic%0.8|leader%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.5|stubborn%0.5|survivalist%0.5|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] [begins|keeps|tries] using [1:their] AED on [2]...<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [2] [is woken|comes back from|revives from] the edge of death!`,p=>{p[2].minimumRevive('AED', p[1]);});
+				new G.act(healthHeal*0.2,['AED medic%0.5|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ medic%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [1]'s AED on [3].<br>CLEAR!<br>[3] still won't wake up. [1] and [2] keeps trying to use CPR and the AED anyway...`);
+				new G.act(healthHeal*createRevivalChanceFunc(0.15),['AED medic%0.8|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ medic%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.2|stubborn%0.2|survivalist%0.2|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [1]'s AED on [3].<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [3] [is woken|comes back from|revives from] the edge of death!`,p=>{p[3].minimumRevive('CPR and AED', [p[1], p[2]]);});
+				new G.act(healthHeal*0.1,['medic%0.5|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ AED medic%0.5|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead !nihil|confirmed|sociopath%0.5|survivalist%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [2]'s AED on [3].<br>CLEAR!<br>[3] still won't wake up. [1] and [2] keeps trying to use CPR and the AED anyway...`);
+				new G.act(healthHeal*createRevivalChanceFunc(0.075),['medic%0.8|leader%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ AED medic%0.8|kind%0.5|analytical%0.2|inventor%0.2|any%0.5 !sociopath%0.8|survivalist%0.5|devious%0.2|annoying%0.2|cowardly%0.2','+ dead bulky%0.2|stubborn%0.2|survivalist%0.2|plot_armor%0.8|any%0.5 !nihil|sheep|pixelated|confirmed|sociopath%0.5|meek%0.2'],`[BLUE][1] and [2] cordinate together to perform CPR and use [2]'s AED on [3].<br>CLEAR!<br>In a [painful|sudden|surprising] gasp, [3] [is woken|comes back from|revives from] the edge of death!`,p=>{p[3].minimumRevive('CPR and AED', [p[1], p[2]]);});
 				new G.act(createRevivalChanceFunc(0.1),['wish_ring peaceful%0.5|kind%0.5|the_gift%0.2|medic%0.2|any%0.5 !sociopath|devious%0.8|survivalist%0.8','+ dead !nihil'],`[BLUE][1] wishes [1:they] could see [2] one last time... [1:g|His|Her|Their|Its] wish ring shimmers for a second, and then -<br>...it's a miracle! [2] came back to life!`,p=>{p[2].revive('wish', p[1]);});
 			G.fitFuncs.teamNotAlone = function() {
 				if (!this.team) { 
@@ -5211,7 +4994,6 @@ G={
 			for (var i in G.acts)
 			{
 				var me=G.acts[i];
-				if (!me.text) { console.log(me, G.acts.indexOf(me)); }
 				if ((me.text.split('[').length-1)!=(me.text.split(']').length-1)) console.log(`Warning : brackets in the action "`,me.text,`" do not match.`);
 			}
 			
@@ -5332,7 +5114,7 @@ G={
 			}
 			G.moveDefault.element = new G.element();
 			G.checkReq = function(char, req, lastSelected) {
-				if (!req || !char || !G.act.prototype.checkSelf(char, req[0], lastSelected)) { return true; }
+				if (!req || !char) { return true; }
 				let list = G.act.prototype.fit(char, [].concat(req), lastSelected);
 				if (!list) { return false; } else { return true; }
 			}; //extreme lazy ahhhh (performance can go die)
@@ -5898,7 +5680,6 @@ G={
 					}
 					//if (listNew.length) { console.log(listNew); }
 					
-					if (!G.act.prototype.checkSelf(this, m.req[0], null)) { continue; }
 					let targets = G.act.prototype.fit(this, m.req, null, m.element.interactMin, listNew);
 					if (!targets) { continue; }
 	
@@ -8991,7 +8772,6 @@ G={
 				},
 				req: ['pet_wolf !frenzied !determined%0.5']
 			});		
-			
 			new G.move({
 				chance: 0.75,
 				text: '[1] [lurches|pounces] and [bites|attacks] [2] with [1:their] sharp teeth[S]!',
@@ -9923,7 +9703,6 @@ G={
 			}
 			
 			//round
-			// ROUNDBEGIN
 			G.round=0;
 			G.round_speed = 1;
 			G.happenings = [];
@@ -10006,7 +9785,6 @@ G={
 						for (var i in actsList)
 						{
 							var act=actsList[i];
-							if (!act.checkSelf(me)) { continue; }
 							var loops=0;
 							//chances over 1 add the act multiple times to the choice list
 							for (var ii=0;ii<Math.min(randomFloor((typeof act.chance === 'function')?act.chance.call(me):act.chance), 50);ii++)
@@ -10030,7 +9808,7 @@ G={
 						}
 						if (choice)
 						{
-							if (choice.chance!=Math.min(FORCE, 50)) {actsList.splice(actsList.indexOf(choice),1);actsList.push(choice);}//put it back at the end
+							if (choice.chance!=FORCE) {actsList.splice(actsList.indexOf(choice),1);actsList.push(choice);}//put it back at the end
 							//for (var i in actors){actors[i].acted=true;}
 							if (actors.length>=1) actors[0].acted=true;
 							var text=choice.text;
