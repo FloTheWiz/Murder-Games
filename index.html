@@ -12,14 +12,9 @@
 		
 		FORKED: FLO - 06-MAY-2025
 
-		//TODO : 
-			-more trait events and moves
-			-allow action func to override the text; this way, we can have special conditional events (ie. scrappy finding different kinds of items in one action)
-			-localstorage save
-			-load from pastebin
-			-better parsing : [1:they] find[-s|] (>he finds, she finds, they find)
-			-helping moves
-			-implement intercepts
+		Scroll down to line ~750 to see the dev docs. 
+
+		
 		-->
 		
 		<script src=" https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js "></script>
@@ -717,7 +712,93 @@
 
 
 <script>
+// For your pleasure, some blank lines so that docs are 750, if this is all used please update the line number.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+# = # = # = # = # = # = # = # = # = # = # = # =
+
+--- Dear Dev of Tomorrow 
+
+# = # = # = # = # = # = # = # = # = # = # = # =
+(I like to Ctrl+F "Tomorrow" to get back here)
+
+This file is split into the following sections :
+
+1) CSS 
+2) HTML 
+3) Guide <- * You are here * 
+4) Lib - Commonly used functions throughout the whole file
+5) Perks and Perk definitions - Load "perks" into the game
+6) Team definitions and Character creator
+7) Flo's weather code
+8) "Acts"
+9) Combat Overseer and "Moves"
+10) Round - Logic for each round (Ctrl+F "ROUNDBEGIN")
+11) End - some random functions and running the whole thing.
+----------------
+What is a...
+
+"Perk"?
+- A perk is an attribute that may be assigned to a player throughout the course of a game, these include statuses, items, personality traits.
+- As you may have seen in the creator, some of these are assignable by the player/ in the creator screen. 
+- Ctrl+F "PERKDOC" for more
+
+"Act"?
+- An act is an action that may happen each round, these target 1 or more people, and fit them into actions, and sometimes perform functions based on the actions
+- Cursed wrote an absolutely excellent writeup and explanation of the act system at the top of this section.
+- Ctrl+F "ACTDOC" for more
+ 
+"Moves"?
+
+
+
+//TODO : 
+	-more trait events and moves
+	-allow action func to override the text; this way, we can have special conditional events (ie. scrappy finding different kinds of items in one action)
+	-localstorage save
+	-load from pastebin
+	-better parsing : [1:they] find[-s|] (>he finds, she finds, they find)
+	-helping moves
+	-implement intercepts
+
+_/()-()\_   
+   \"/  
+    `  - flo
+
+*/
 //lib
 l=function(d){return document.getElementById(d);};
 c=function(a){return a[Math.floor(Math.random()*a.length)];};
@@ -889,6 +970,7 @@ function loadSaves() {
 	}
 }
 
+// Beginning of G
 
 G={
 	init:function()
@@ -940,6 +1022,7 @@ G={
 		}
 
 		/*
+		PERKDOC
   		DOCUMENTATION:
     		"name": the name of the perk
       		"desc": description
@@ -1140,7 +1223,16 @@ G={
         //Make sure people stay "gone" -TW
         new G.perk({name:`nihil`,desc:`Has ceased to exist entirely.`,out:true});
         new G.perk({name:`confirmed`,desc:`Has been confirmed to not be mostly dead.`,out:true});
-		
+		// Utility flo
+		new G.perk({name:`cracked egg`,desc:`Oooooh, what's inside?`});
+			// Goldfish evolutions 
+		new G.perk({name:`gyarados`, desc:`Woah! A Gyarados to fight for you`});
+		new G.perk({name:`shiny gyarados`, desc:`A cool red Gyarados from Rage Lake!`})
+		// Egg -> Cracked egg -> Baby chicken | Hawk | Dragon | Dinosaur 
+		new G.perk({name:`pet baby chicken`, desc:`a cute baby chicken to peck your opponents`});
+		new G.perk({name:`pet dragon`, desc:`An awesome pet dragon to smite your foes`});
+		new G.perk({name:`pet dinosaur`, desc:`A pet from a prehistoric time`})
+
 		G.glob={type:'item'};
 			G.glob.def=true;
 		let ITEM_ASSETS = `assets/items/`
@@ -1170,7 +1262,10 @@ G={
         // Additional Pets -TW
         new G.perk({name:`pet hawk`,desc:`A cunning pet hawk to spy from the skies above.`,tier:1});
 		new G.perk({name:`pet rock`,desc:`A classic pet rock to teach tons of neat tricks.`,tier:0});
-
+		// Even More Pets! - Flo
+		new G.perk({name:`pet snake`,desc:`A sssslithery sssnake to chomp your foesss.`})
+		new G.perk({name:`pet goldfish`,desc:`A pet goldfish in a bowl. Blub Blub!`, tier:1})
+		new G.perk({name:`mysterious egg`, desc:`A mysterious egg, who knows what's inside`, tier:2})
         // Additional items -TW
         new G.perk({name:`cursed knife`,desc:`May force it's user into unspeakable things.`,tier:1});
 		new G.perk({name:`shuriken`,desc:`Various knives designed for throwing.`,tier:0});
@@ -1224,7 +1319,9 @@ G={
 		new G.perk({name:'a really good guidebook',desc:'Contains cost-efficient recipes for all sorts of things.',tier:5});
 		new G.perk({name:'pet lobster',desc:'A nice lobster to do your aquatic biddings.',tier:5});
 		// hi mom! - Flo
-		new G.perk({name:`<i>A cool hat</i>`,desc:'A cool hat to bring you joy.',tier:0})
+		new G.perk({name:`<i>A cool hat</i>`,desc:'A cool hat to bring you joy.',tier:0});
+	
+
 		let autoCompileSetupsList = true;
 
 		G.exportAllPerks = function() {
@@ -3925,10 +4022,11 @@ G={
 			});
 			
 			//trait-related idling
+			new G.act (0.5,['any|any'],`[1] admires the [architecture|brick patterns].`);
 			new G.act(1,['any|any'],`[1] [hums a song to [1:themself]|twiddles [1:their] thumbs|thinks about what [1:they] did to end up here|wonders about the future|has a horrible feeling in [1:their] [chest|gut]|stares into the distance].`);
 			new G.act(1,['leader','+ team teamalive:>2'],`[1] [hopes to get everyone out of here|tries to keep a brave face on for everyone's sake].`);
-				new G.act(0.5,['leader','+ leader|devious|stubborn|any%0.2 !kind|peaceful|naive'],`[1] and [2] get into an argument over who should be in charge.`);
-				new G.act(0.5,['leader !sociopath','+ team teamalive:>2 teamdeaths:0'],`[1] is proud to lead [2].`);
+			new G.act(0.5,['leader','+ leader|devious|stubborn|any%0.2 !kind|peaceful|naive'],`[1] and [2] get into an argument over who should be in charge.`);
+			new G.act(0.5,['leader !sociopath','+ team teamalive:>2 teamdeaths:0'],`[1] is proud to lead [2].`);
 				new G.act(0.5,['leader !sociopath','+ team teamalive:>2 teamdeaths:>0'],`[1] made some mistakes as a leader, but wants to do right by [2].`);
 				new G.act(0.5,['leader|any%0.2 !sociopath','+ team teamdeaths:>1'],`[1] feels horrible for failing [2]...`);
 				new G.act(0.5,['leader naive|cowardly%0.5|any%0.2 !sociopath%0.5|analytical%0.5','+ team teamdeaths:0'],`[1] wants to lead [2] to victory, but isn't sure how to proceed...`);
@@ -4123,7 +4221,7 @@ G={
 			new G.act(0.5,['cut_up !first_aid_kit%0.5|bulky%0.2|stubborn%0.2'],`[1] covers up [1:their] various cuts [and slashes |] as [1:they] [slightly bleed|have mostly scabbed over|breath slowly to [numb|stiffle] the pain].`);
 			new G.act(0.5,['broken !first_aid_kit%0.5|bulky%0.2|stubborn%0.2'],`[1]'s breathing is [pained|struggling|staggered] from [1:their] [internal injuries|broken rib|sore body].`);
 			new G.act(0.5,['shot !first_aid_kit%0.5|bulky%0.2|stubborn%0.2'],`[1] grips [1:their] [still slightly bleeding|gruesome] bullet wound, pressing on to survive.`);
-			new G.act(0.5,['singed !first_aid_kit%0.5|bulky%0.2|stubborn%0.2'],`[1] is still looking toasty from when [1:they] last delt with fire.`);
+			new G.act(0.5,['singed !first_aid_kit%0.5|bulky%0.2|stubborn%0.2'],`[1] is still looking toasty from when [1:they] last dealt with fire.`);
 			new G.act(0.5,['poisoned !medicine%0.5|bulky%0.2|stubborn%0.2'],`[1] is turning [pale|yellow|green] from the poison coursing through [1:their] body.`);
 			// // Major Status Effects
 			new G.act(1,['bleeding_out !out'],`[1] hasn't died yet despite their extensive blood loss.`);
@@ -4152,6 +4250,62 @@ G={
 			new G.act(0.175,['respawn_anchor any !inventor%0.5|goth%0.6|the_gift%0.6', 'any', 'delete%0.8 any', 'delete%0.8 any', 'delete%0.8 any', 'delete%0.8 any', 'delete%0.8 any'],`[RED][1] places down [1:their] respawn anchor and attempts to activate it.<br>However, [1:they] made a mistake while trying to activate it, and the respawn anchor blew up into a miniature mushroom cloud in front of [1:them], killing [1:them] instantly. [ALL-1] were also caught in this explosion, killing them as well!`,p=>{for (let i = 1; i < p.length; i++) { p[1].kill(p[i], '[INTENTIONAL GAME DESIGN]'); } p[1].lose('respawn anchor'); });
 			new G.act(1,['angel\'s_revival dead !nihil|sheep|pixelated'],'[BLUE]Out of nowhere, a point in the sky begin to glow a glorious golden shine, as a pair of wings grow out of it - carrying [1]! <br>As it turns out, when [1:they] last died, their angel in a bottle shattered, which lead to [1:their] revival.',p=>{ p[1].revive('angels'); p[1].lose('angel\'s revival'); });
 			new G.act(0.6,['angel\'s_revival dead !nihil|sheep|pixelated'],'[BLUE]Out of nowhere, a point in the sky begin to glow a glorious golden shine, as a pair of wings grow out of it - carrying [1]! <br>As it turns out, when [1:they] last died, their angel in a bottle shattered, which lead to [1:their] revival.<br>The angel set [1:them] down gently, then hands [1:them] something - another angel in a bottle!',p=>{ p[1].revive('angels'); p[1].lose('angel\'s revival'); p[1].gain('angel in a bottle'); });
+			
+			// Flo's pets 
+			// These odds are all made up on the fly, feel free to add, tweak, etc
+			// Egg crackin :3
+			new G.act(0.8,['mysterious_egg any animal_ken%0.5 !out'],`[BLUE][1] holds [1:their] egg to [1:their] ear, [1:they] hear noises inside!`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
+			new G.act(0.3,['mysterious_egg !out'], `[BLUE][1] begins to hear noises coming from [1:their] egg!`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
+			new G.act(0.3,['mysterious_egg any !out'], `[BLUE][1]'s egg is [starting to make noise|showing signs of hatching soon]!`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
+			new G.act(0.3,['mysterious_egg any'], `[BLUE][1]'s egg [wobbles and shakes|bounces up and down|wriggles and squarks].`,p=>{p[1].lose("mysterious egg");p[1].gain("cracked egg");});
+			
+			// Baby chicken 
+			new G.act(0.5,['!out cracked_egg animal_ken%0.5 !sociopath !devious'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
+			new G.act(0.4,['!out cracked_egg !sociopath !devious'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
+			new G.act(0.3,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a baby chicken!`,p=>{p[1].lose('cracked egg');p[1].gain('pet baby chicken');});
+			// Hawk
+			new G.act(0.3,['!out cracked_egg animal_ken%0.5 !peaceful'],`[BLUE][1]'s egg hatches into a hawk!`,p=>{p[1].lose('cracked egg');p[1].gain('pet hawk');});
+			new G.act(0.4,['!out cracked_egg analytical%0.3|nerd%0.5%|leader%0.3'],`[BLUE][1]'s egg hatches into a hawk!`,p=>{p[1].lose('cracked egg');p[1].gain('pet hawk');});
+			new G.act(0.2,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a hawk!`,p=>{p[1].lose('cracked egg');p[1].gain('pet hawk');});
+			// Dragon! 
+			new G.act(0.2,['!out cracked_egg animal_ken%0.5 !peaceful'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet_dragon');});
+			new G.act(0.1,['!out cracked_egg nerd%0.4|meek%0.4|pyromania%0.6'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dragon');});
+			new G.act(0.05,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a dragon!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dragon');});
+			// dinosaur
+			new G.act(0.2,['!out cracked_egg animal_ken%0.5|nerd%0.5|glasses%0.5'],`[BLUE][1]'s egg hatches into a baby dinosaur!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dinosaur');});
+			new G.act(0.1,['!out cracked_egg'],`[BLUE][1]'s egg hatches into a baby dinosaur!`,p=>{p[1].lose('cracked egg');p[1].gain('pet dinosaur');});
+			
+			// goldfish evolution
+			new G.act(0.5,['!out has_killed pet_goldfish'],`[BLUE]After battling, [1]'s pet goldfish has reached level 20, and evolves into a Gyarados!`,p=>{p[1].lose('pet goldfish');p[1].gain('gyarados');});
+			new G.act(0.05,['!out has_killed pet_goldfish'],`[BLUE]After battling, [1]'s pet goldfish has reached level 20, and evolves into a Shiny Gyarados!`,p=>{p[1].lose('pet goldfish');p[1].gain('shiny gyarados');});
+
+			// Flo pet idles 
+			// chicken
+			new G.act(0.5,['teamalive:>2 pet_baby_chicken !out', '+ !sociopath', '+ !sociopath'],`[2] and [3] watch as [1]'s baby chicken does a cool dance.`)
+			new G.act(0.3,['pet_baby_chicken !out', '+ !sociopath'], `[1] lets [2] pet [1:their] baby chicken`);
+			new G.act(0.3,['pet_baby_chicken !out'], '[1] watches [1:their] baby chicken do a lil dance');
+			new G.act(0.1,['pet_baby_chicken'], `[1]'s pet baby chicken clucks loudly.`);
+			new G.act(0.1,['pet_baby_chicken', 'anyone'], `[1]'s pet baby chicken clucks loudly at [2].`);
+			new G.act(0.1,['pet_baby_chicken !unstable !out'], `[RED][1]'s pet baby chicken drives [1] insane!`,p=>{p[1].gain('unstable')});
+			new G.act(0.1,['pet_baby_chicken !out','!unstable'], `[RED][1]'s pet baby chicken drives [2] insane!`,p=>{p[1].gain('unstable')});
+			// dragon 
+			new G.act(0.5,['pet_dragon !out', '+ sociopath !pet_dragon'],`[2] is envious of [1]'s pet dragon`);
+			new G.act(0.5,['pet_dragon teamalive:>2 !out', '+ any', '+ any'],`[3] and [2] [try to pet|gawp in awe at|go for a ride on] [1]'s pet dragon.`);
+			// Crazy dragon attacks!
+			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2], who barely gets away with [2:their] life.<br>But not without losing their eyebrows.`, p=>{p[2].gain('singed')})
+			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2], who barely gets away with [2:their] life.<br>But not without some serious burns.`, p=>{p[2].gain('seared')})
+			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2],<br> Who disintegrates immediately.`, p=>{p[2].gain('burnt')})
+			
+
+			// gyarados 
+			new G.act(0.2,['!out gyarados members:>1','+ any'],`[2] marvels at [1]'s pet Gyarados.`)
+			new G.act(0.2,['!out gyarados members:>2','+ any','+ any'],`[2] and [3] marvels at [1]'s pet Gyarados.`)
+			new G.act(0.3,['!out gyarados'],`[1]'s Gyarados `)
+			// Flo generic 
+			new G.act(0.1,['alive:2 unalive:>3','+ !sociopath'],`[1] and [2] share a somber moment, remembering those who didn't make it this far.`);
+			new G.act(0.1,['survivalist teamalive:1 unalive:>3'],`[1] looks at the empty spaces where [1:their] companions once stood.`);
+
+			// Flo weather 
 			
 			//finding items
 			var baseItemMult=1.5;
@@ -4255,7 +4409,10 @@ G={
             new G.act(newPetMult*0.01,['animal_ken%0.5|peaceful%0.2|kind%0.2|scrappy%0.2|rich%0.2|any%0.5 !pet_tiger|sociopath%0.8|survivalist%0.5'],`[BLUE][[1] is almost mauled by a raging tiger!<br>[1] removes the thorn from their paw, and the tiger quickly becomes the biggest, scariest, kitten.|[1] finds a starving tiger cub who's lost their mother.<br>[1] begins feeding it and teaching the tiger cub tricks.]`,p=>{p[1].gain('pet tiger');});
             new G.act(newPetMult*0.02,['animal_ken%0.5|peaceful%0.2|kind%0.2|scrappy%0.2|marksmen%0.2|any%0.5 !pet_hawk|sociopath%0.8|survivalist%0.5'],`[BLUE][1] finds an injured bird and nurturs them back to health.<br>The recovered hawk keeps circling around [1].`,p=>{p[1].gain('pet hawk');});
             new G.act(newPetMult*0.02,['peaceful%0.2|naive%0.5|annoying%0.5|scrappy%0.5|any%0.5 !pet_rock|sociopath%0.8|analytical%0.8|survivalist%0.8'],`[BLUE][1] picks up an unusual rock.<br>Maybe [1:they] can teach it some tricks...?`,p=>{p[1].gain('pet rock');});
-			
+			// Flo's pets
+			new G.act(newPetMult*0.02,['animal_ken%0.5|scrappy%0.2|kind%0.2|survivalist%0.5 !mysterious_egg'],`[BLUE][1] [looks around and finds|gets hit on the head by|climbs a tree and finds|nearly steps on] a mysterious egg!`)
+			new G.act(newPetMult*0.02,['animal_ken%0.5|survivalist%0.5|peaceful%0.5|meek%0.5|w:rain%0.5 !pet_goldfish'], `[BLUE][1] [looks around and finds a puddle|finds a perfectly preserved bowl] with a Goldfish [inside|happily blubbing away|swimming cheerfully]!`)
+			new G.act(newPetMult*0.01,['w:rain%0.5|w:storm%0.5 !sociopath'], `[BLUE][1] rescues a goldfish from a nearby puddle! They're now best friends!`)
 			// Theft - TW & Nyan Cat (& CursedSliver for adding the new items)
 			// - Melee
 			new G.act(lootDeadMult*0.025,[itemThief+' !peaceful|pitchfork|naive%0.5|meek%0.2','pitchfork dead !nihil'],`[BLUE][1] [stops in their tracks|freezes in fear|gasps in surprise] when [1:they] stumble upon [2]'s lifeless body.<br>Fearing for [1:their] own safety, [1] [grabs|takes|loots] the nearby pitchfork [from the ground|from [2]].`,p=>{p[1].gain('pitchfork');p[2].lose('pitchfork');});
@@ -8834,6 +8991,7 @@ G={
 				},
 				req: ['pet_wolf !frenzied !determined%0.5']
 			});		
+			
 			new G.move({
 				chance: 0.75,
 				text: '[1] [lurches|pounces] and [bites|attacks] [2] with [1:their] sharp teeth[S]!',
@@ -9765,6 +9923,7 @@ G={
 			}
 			
 			//round
+			// ROUNDBEGIN
 			G.round=0;
 			G.round_speed = 1;
 			G.happenings = [];
