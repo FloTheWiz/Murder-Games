@@ -12,14 +12,9 @@
 		
 		FORKED: FLO - 06-MAY-2025
 
-		//TODO : 
-			-more trait events and moves
-			-allow action func to override the text; this way, we can have special conditional events (ie. scrappy finding different kinds of items in one action)
-			-localstorage save
-			-load from pastebin
-			-better parsing : [1:they] find[-s|] (>he finds, she finds, they find)
-			-helping moves
-			-implement intercepts
+		Scroll down to line ~750 to see the dev docs. 
+
+		
 		-->
 		
 		<script src=" https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js "></script>
@@ -717,7 +712,86 @@
 
 
 <script>
+// For your pleasure, some blank lines so that docs are 750, if this is all used please update the line number.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+# = # = # = # = # = # = # = # = # = # = # = # =
+
+--- Dear Dev of Tomorrow 
+
+# = # = # = # = # = # = # = # = # = # = # = # =
+(I like to Ctrl+F "Tomorrow" to get back here)
+
+This file is split into the following sections :
+
+1) CSS 
+2) HTML 
+3) Guide <- * You are here * 
+4) Lib - Commonly used functions throughout the whole file
+5) Perks and Perk definitions - Load "perks" into the game
+6) Team definitions and Character creator
+7) Flo's weather code
+8) "Acts"
+9) Combat Overseer and "Moves"
+10) Round - Logic for each round (Ctrl+F "ROUNDBEGIN")
+11) End - some random functions and running the whole thing.
+----------------
+What is a...
+
+"Perk"?
+- A perk is an attribute that may be assigned to a player throughout the course of a game, these include statuses, items, personality traits.
+- As you may have seen in the creator, some of these are assignable by the player/ in the creator screen. 
+- Ctrl+F "PERKDOC" for more
+
+"Act"?
+- An act is an action that may happen each round, these target 1 or more people, and fit them into actions, and sometimes perform functions based on the actions
+- Cursed wrote an absolutely excellent writeup and explanation of the act system at the top of this section.
+- Ctrl+F "ACTDOC" for more
+ 
+"Moves"?
+
+
+
+
+
+_/()-()\_   
+   \"/  
+    `
+
+*/
 //lib
 l=function(d){return document.getElementById(d);};
 c=function(a){return a[Math.floor(Math.random()*a.length)];};
@@ -889,7 +963,7 @@ function loadSaves() {
 	}
 }
 
-
+// Beginning of G
 G={
 	init:function()
 	{
@@ -940,6 +1014,7 @@ G={
 		}
 
 		/*
+		PERKDOC
   		DOCUMENTATION:
     		"name": the name of the perk
       		"desc": description
@@ -1180,6 +1255,7 @@ G={
         new G.perk({name:`pet hawk`,desc:`A cunning pet hawk to spy from the skies above.`,tier:1});
 		new G.perk({name:`pet rock`,desc:`A classic pet rock to teach tons of neat tricks.`,tier:0});
 		// Even More Pets! - Flo
+		new G.perk({name:`pet snake`,desc:`A sssslithery sssnake to chomp your foesss.`})
 		new G.perk({name:`pet goldfish`,desc:`A pet goldfish in a bowl. Blub Blub!`, tier:1})
 		new G.perk({name:`mysterious egg`, desc:`A mysterious egg, who knows what's inside`, tier:2})
         // Additional items -TW
@@ -4201,14 +4277,22 @@ G={
 			new G.act(0.3,['pet_baby_chicken !out', '+ !sociopath'], `[1] lets [2] pet [1:their] baby chicken`);
 			new G.act(0.3,['pet_baby_chicken !out'], '[1] watches [1:their] baby chicken do a lil dance');
 			new G.act(0.1,['pet_baby_chicken'], `[1]'s pet baby chicken clucks loudly.`);
+			new G.act(0.1,['pet_baby_chicken', 'anyone'], `[1]'s pet baby chicken clucks loudly at [2].`);
 			new G.act(0.1,['pet_baby_chicken !unstable !out'], `[RED][1]'s pet baby chicken drives [1] insane!`,p=>{p[1].gain('unstable')});
-			new G.act(0.1,['pet_baby_chicken !out','!unstable'], `[RED][1]'s pet baby chicken drives [2] insane!`,p=>{p[1].gain('unstable')})
+			new G.act(0.1,['pet_baby_chicken !out','!unstable'], `[RED][1]'s pet baby chicken drives [2] insane!`,p=>{p[1].gain('unstable')});
 			// dragon 
-			new G.act(0.5,['pet_dragon !out', '+ sociopath !pet_dragon'],`[2] is envious of [1]'s pet dragon`)
-			new G.act(0.5,['pet_dragon teamalive:>2 !out', '+ any', '+ any'],`[3] and [2] [try to pet|gawp in awe at|go for a ride on]`)
+			new G.act(0.5,['pet_dragon !out', '+ sociopath !pet_dragon'],`[2] is envious of [1]'s pet dragon`);
+			new G.act(0.5,['pet_dragon teamalive:>2 !out', '+ any', '+ any'],`[3] and [2] [try to pet|gawp in awe at|go for a ride on] [1]'s pet dragon.`);
+			// Crazy dragon attacks!
+			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2], who barely gets away with [2:their] life.<br>But not without losing their eyebrows.`, p=>{p[2].gain('singed')})
+			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2], who barely gets away with [2:their] life.<br>But not without some serious burns.`, p=>{p[2].gain('seared')})
+			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2],<br> Who disintegrates immediately.`, p=>{p[2].gain('burnt')})
+			
+
+			// gyarados 
 			new G.act(0.2,['!out gyarados members:>1','+ any'],`[2] marvels at [1]'s pet Gyarados.`)
 			new G.act(0.2,['!out gyarados members:>2','+ any','+ any'],`[2] and [3] marvels at [1]'s pet Gyarados.`)
-
+			new G.act(0.3,['!out gyarados'],`[1]'s Gyarados `)
 			// Flo generic 
 			new G.act(0.1,['alive:2 unalive:>3','+ !sociopath'],`[1] and [2] share a somber moment, remembering those who didn't make it this far.`);
 			new G.act(0.1,['survivalist teamalive:1 unalive:>3'],`[1] looks at the empty spaces where [1:their] companions once stood.`);
@@ -8899,6 +8983,7 @@ G={
 				},
 				req: ['pet_wolf !frenzied !determined%0.5']
 			});		
+			
 			new G.move({
 				chance: 0.75,
 				text: '[1] [lurches|pounces] and [bites|attacks] [2] with [1:their] sharp teeth[S]!',
@@ -9830,6 +9915,7 @@ G={
 			}
 			
 			//round
+			// ROUNDBEGIN
 			G.round=0;
 			G.round_speed = 1;
 			G.happenings = [];
