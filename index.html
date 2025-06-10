@@ -55,10 +55,14 @@
 		}
 		#main
 		{
-			max-width:672px;
+			max-width:800px;
 			margin:0px auto;
 			padding:16px;
 			text-align:center;
+			display:flex;
+			flex-direction:column;
+			align-items: center;
+			justify-content: center;
 		}
 		#backToDashnet
 		{
@@ -241,7 +245,8 @@
 			color: #59c135;
 			text-shadow: 1px 1px 4px #1a7a3e,-1px 1px 8px rgba(0,0,0,0.5), 1px 0px 8px rgba(0,0,0,0.5); 
 			background-position-y: center;
-			box-shadow:6px 4px 6px rgba(0, 0, 0,0.25) inset, -6px -4px 6px rgba(0,0,0,0.25) inset
+			box-shadow:6px 4px 6px rgba(0, 0, 0,0.25) inset, -6px -4px 6px rgba(0,0,0,0.25) inset;
+			width: 105%;
 		}
 
 		.smallHeader {
@@ -1348,6 +1353,76 @@ G={
 		G.setupData=0;
 		G.creator=function()
 		{
+			// Save data struct {"name":"data"}
+			G.savePrompt = function(){
+				var str = `
+				<div class="saveNameInput" style="">
+					<h2 id="saveNameTitle"> Enter a name for this save<h2>
+					<input type="text" id="saveInputName" placeholder="Enter your name"><br>
+					<button id="SaveButt" class="button bigButton"style="margin-top: 10px;">Save</button>
+				</div>`
+				G.popup(str, function () {
+				l('closePopup').innerHTML = 'Cancel';
+				addEvent(l('SaveButt'),'click', function () {
+					var name = l('saveInputName').value;
+					if (name == "") {
+						l('saveNameTitle').innerHTML = "Save name cannot be blank.";
+						return;
+					}
+					console.log(name);
+					G.saveSetup(name);
+					l('popups').innerHTML = '';
+					})
+				});
+			}, 
+			G.saveSetup = function(name) {
+				var d = G.exportSetup(-1);
+				try {
+					var saves = JSON.parse(localStorage.getItem('saves')||'{}');
+				} catch (e) {
+					console.log("Error parsing JSON. See following and fix to access saves.")
+					console.log(e);
+					saves = {};
+				}
+				saves[name] = d;
+				localStorage.setItem('saves', JSON.stringify(saves));
+			},
+			G.loadPopup = function(){
+				try {
+					G.saves = JSON.parse(localStorage.getItem('saves')||'{}');
+				} catch(e) {
+					console.log("Error");
+					console.log(e);
+				};
+				var temp = '';
+				var s_no = 1;
+				for (var k in G.saves) {
+					temp += `<div style="display:flex;position:relative;background-color:#333;margin-bottom:10px;border-radius:15px;cursor:pointer;" id="LOAD:${k}">
+						<header style="width:50%;">${s_no}) ${k}</header>
+						<div style="display:flex;align-items:center;justify-content:center">${G.saves[k].chars.length} Characters and ${G.saves[k].teams.length} Teams.</div>
+						</div>`;
+					s_no ++;
+				}
+
+				str = `
+				<div style="display:flex;flex-direction:column;align-items:center;">
+				<header> Saves </header>
+				<div style="overflow-y: scroll; display: flex; flex-direction: column; padding:20px; width:90%;">
+				`+ temp
+				+`</div></div>
+				`;
+				G.popup(str, function(){
+					l('closePopup').innerHTML = "Cancel";
+					for (var k in G.saves) {
+						addEvent(l('LOAD:' + k),'click',function(){
+							console.log("Loading save: " + this.id)
+							G.importSetup(JSON.stringify(G.saves[this.id.split(":")[1]]));
+							l('popups').innerHTML = '';
+						})
+					}
+				})
+
+			},
 			G.exportSetup=function(data)
 			{
 				var o={
@@ -1490,10 +1565,10 @@ G={
 				<div style="opacity:0.5;font-size:10px;float:right;">-Orteil</div>
 				<div style="clear:both;"></div>
 			</div>
-			<div class="blackbg">
+			<div class="blackbg" style="display:flex;flex-direction:column;align-items:center;">
 			<div class="horizontal"></div>
-			<div class="box red"><b>Warning :</b> may contain traces of bugs.</div>
-			<div style="text-align:left;overflow:hidden;">
+			<div class="box red" style="width:90%;"><b>Warning :</b> may contain traces of bugs.</div>
+			<div style="text-align:left;overflow:hidden;width:95%;">
 				<div class="button" id="importSetup">Import an existing setup...</div> 
 				<div class="button" id="exportSetup">Export this setup...</div>
 				<div class="button" id="saveSetup">Save this setup...</div>
@@ -1503,7 +1578,7 @@ G={
 				</div>
 			</div>
 			<header>Game Settings</header>
-			<div class="box">
+			<div class="box" style="width:95%;background-color:#222;">
 				<div>
 				<cap>Game Speed</cap>
 				<select id="gameSpeed">
@@ -1552,8 +1627,9 @@ G={
 				</div>
 			</div>
 			<header>Teams</header>
-			<div id="creator"></div>
-			<div style="text-align:left;"><div class="button" id="addTeam">Add team</div></div>
+			<div id="creator" style="width:95%;"></div>
+			<div style="text-align:left;width:95%;"><div class="button" id="addTeam">Add team</div></div>
+			<div class="horizontal" style="margin-bottom:-20px;margin-top:10px;"></div>
 			<header><div class="button bigButton" id="start" style="background-image:url(assets/ui/stonetabletcracked.png);height:31px;width:63px;">Start!</div></header>
 			</div>
 			<div class="horizontal"></div>
@@ -1564,6 +1640,8 @@ G={
 			addEvent(l('start2'),'click',function(){G.start();});
 			addEvent(l('importSetup'),'click',function(){G.importSetup();});
 			addEvent(l('exportSetup'),'click',function(){G.exportSetup();}); 
+			addEvent(l('saveSetup'), 'click',function(){G.savePrompt();})
+			addEvent(l('loadSetup'), 'click',function(){G.loadPopup();})
 			G.teams=[];
 			var domN=0;
 			Sortable.create(l('creator'),{group:'teams',ghostClass:'dragGhost',handle:'.handle',onEnd:function(e){
@@ -1843,6 +1921,52 @@ G={
 			if (G.setupData) G.importSetup(JSON.stringify(G.setupData));
 		}
 		
+		G.viewDetails=function()
+		{
+			var str=`
+				<header>Details</header>
+				<div>
+			`;
+			
+			var teams=G.teams.slice(0);
+			var teamless={chars:[],name:'NOTEAM'};
+			for (var i=0;i<G.chars.length;i++){if (!G.chars[i].team){teamless.chars.push(G.chars[i]);}}
+			if (teamless.chars.length>0) teams.unshift(teamless);
+			
+			for (var i=0;i<teams.length;i++)
+			{
+				var team=teams[i];
+				if (team.name=='NOTEAM') str+=`<div class="box team teamless"><cap>Unaffiliated</cap>`;
+				else str+=`<div class="box team ${i%2==0?'blue':'red'}"><cap>${team.name}</cap>`;
+				for (var ii=0;ii<team.chars.length;ii++)
+				{
+					var me=team.chars[ii];
+					str+=`
+					<div class="charDisplay" style="font-size:12px;">
+						<div class="picBox"><img src="${me.pic}" class="pic" title="${me.name}"/>${me.has('dead')?'<div class="picSkull"></div>':''} ${me.has('revived')?'<div class="picAngel"></div>':''}</div>
+						<div style="text-align:center;">
+							<e style="float:left;margin-right:8px;">${me.name}</e>
+							<div style="min-width:32%;display:inline-block;"><cap>Perks :</cap> ${me.perks.map(perk=>(perk.perk.type=='trait' && perk.perk.name!='no perk')?('<div class="bit" title="'+perk.desc+'">'+perk.perk.name+'</div>'):'').join(' ')}</div>
+							<div style="min-width:32%;display:inline-block;"><cap>Items :</cap> ${me.perks.map(perk=>(perk.perk.type=='item' && perk.perk.name!='no item')?('<div class="bit" title="'+perk.desc+'">'+perk.perk.name+'</div>'):'').join(' ')}</div>
+							<div style="min-width:32%;display:inline-block;"><cap>Other :</cap> ${me.perks.map(perk=>(perk.perk.type!='item' && perk.perk.type!='trait')?('<div class="bit" title="'+perk.desc+'">'+perk.perk.name+'</div>'):'').join(' ')}</div>
+						</div>
+						${me.kills.length>0?('<div style="color:#e2461f;">Killed '+me.kills.length+' (<e>'+me.kills.map(char=>char.name).join(', ')+'</e>)</div>'):''}
+						${(me.killer.length>0 && me.has('dead'))?('<div style="color:#e2461f;">Dead, killed by <e>'+me.killer.map(char=>char.name).join(', ')+'</e> ('+me.deathReason+')</div>'):''}
+						${(me.killer.length==0 && me.has('dead'))?('<div style="color:#e2461f;">Dead ('+me.deathReason+')</div>'):''}
+					</div>`;
+				}
+				str+=`</div>`;
+				
+			}
+
+			
+			G.popup(str,function(){
+			});
+		}
+
+		document.addEventListener('keydown', function(e) { if (e.shiftKey && e.key.toLowerCase() == 's') { G.importSetup(userDataJSON); G.start(); } });
+		//CTRL WEATHEND TO GET TO OTHER SIDE 
+
 		// Weather code   ***  ***               *******    **** 
 		// By Flo       *** ***** ***          ***** **** ** *****
 		//                **********     \|/    * * **** **** ***
@@ -3118,6 +3242,7 @@ G={
                                     `
 			weatherdiv.innerHTML = G.weatherSettings.current_string
 		}
+		// WEATHEND 
 		G.getGameSpeed = function(){
 			var speed_str=l('gameSpeed').value;
 			var base_speed=1
@@ -3159,50 +3284,6 @@ G={
 			console.log(3000 * (1 / base_speed))
 			return 3000 * (1 / base_speed)
 		}
-		G.viewDetails=function()
-		{
-			var str=`
-				<header>Details</header>
-				<div>
-			`;
-			
-			var teams=G.teams.slice(0);
-			var teamless={chars:[],name:'NOTEAM'};
-			for (var i=0;i<G.chars.length;i++){if (!G.chars[i].team){teamless.chars.push(G.chars[i]);}}
-			if (teamless.chars.length>0) teams.unshift(teamless);
-			
-			for (var i=0;i<teams.length;i++)
-			{
-				var team=teams[i];
-				if (team.name=='NOTEAM') str+=`<div class="box team teamless"><cap>Unaffiliated</cap>`;
-				else str+=`<div class="box team ${i%2==0?'blue':'red'}"><cap>${team.name}</cap>`;
-				for (var ii=0;ii<team.chars.length;ii++)
-				{
-					var me=team.chars[ii];
-					str+=`
-					<div class="charDisplay" style="font-size:12px;">
-						<div class="picBox"><img src="${me.pic}" class="pic" title="${me.name}"/>${me.has('dead')?'<div class="picSkull"></div>':''} ${me.has('revived')?'<div class="picAngel"></div>':''}</div>
-						<div style="text-align:center;">
-							<e style="float:left;margin-right:8px;">${me.name}</e>
-							<div style="min-width:32%;display:inline-block;"><cap>Perks :</cap> ${me.perks.map(perk=>(perk.perk.type=='trait' && perk.perk.name!='no perk')?('<div class="bit" title="'+perk.desc+'">'+perk.perk.name+'</div>'):'').join(' ')}</div>
-							<div style="min-width:32%;display:inline-block;"><cap>Items :</cap> ${me.perks.map(perk=>(perk.perk.type=='item' && perk.perk.name!='no item')?('<div class="bit" title="'+perk.desc+'">'+perk.perk.name+'</div>'):'').join(' ')}</div>
-							<div style="min-width:32%;display:inline-block;"><cap>Other :</cap> ${me.perks.map(perk=>(perk.perk.type!='item' && perk.perk.type!='trait')?('<div class="bit" title="'+perk.desc+'">'+perk.perk.name+'</div>'):'').join(' ')}</div>
-						</div>
-						${me.kills.length>0?('<div style="color:#e2461f;">Killed '+me.kills.length+' (<e>'+me.kills.map(char=>char.name).join(', ')+'</e>)</div>'):''}
-						${(me.killer.length>0 && me.has('dead'))?('<div style="color:#e2461f;">Dead, killed by <e>'+me.killer.map(char=>char.name).join(', ')+'</e> ('+me.deathReason+')</div>'):''}
-						${(me.killer.length==0 && me.has('dead'))?('<div style="color:#e2461f;">Dead ('+me.deathReason+')</div>'):''}
-					</div>`;
-				}
-				str+=`</div>`;
-				
-			}
-
-			
-			G.popup(str,function(){
-			});
-		}
-
-		document.addEventListener('keydown', function(e) { if (e.shiftKey && e.key.toLowerCase() == 's') { G.importSetup(userDataJSON); G.start(); } });
 		
 		G.started = false;
 		G.simulating = false;
@@ -4292,15 +4373,23 @@ G={
 			new G.act(0.5,['pet_dragon !out', '+ sociopath !pet_dragon'],`[2] is envious of [1]'s pet dragon`);
 			new G.act(0.5,['pet_dragon teamalive:>2 !out', '+ any', '+ any'],`[3] and [2] [try to pet|gawp in awe at|go for a ride on] [1]'s pet dragon.`);
 			// Crazy dragon attacks!
-			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2], who barely gets away with [2:their] life.<br>But not without losing their eyebrows.`, p=>{p[2].gain('singed')})
-			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2], who barely gets away with [2:their] life.<br>But not without some serious burns.`, p=>{p[2].gain('seared')})
-			new G.act(0.1,['pet_dragon frenzied|unstable|pyromaniac !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2],<br> Who disintegrates immediately.`, p=>{p[2].gain('burnt')})
+			new G.act(0.1,['pet_dragon frenzied%0.5|unstable%0.5|pyromania%0.5 !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2], who barely gets away with [2:their] life.<br>But not without losing their eyebrows.`, p=>{p[2].gain('singed')})
+			new G.act(0.1,['pet_dragon frenzied%0.5|unstable%0.5|pyromania%0.5 !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2], who barely gets away with [2:their] life.<br>But not without some serious burns.`, p=>{p[2].gain('seared')})
+			new G.act(0.1,['pet_dragon frenzied%0.5|unstable%0.5|pyromania%0.5 !out','anyone !singed !seared !burnt'],`[RED]In a [craze|fit of confusion|frenzy], [1] commands [1:their] dragon to attack [2],<br> Who disintegrates immediately.`, p=>{p[2].gain('burnt')})
 			
 
 			// gyarados 
-			new G.act(0.2,['!out gyarados members:>1','+ any'],`[2] marvels at [1]'s pet Gyarados.`)
-			new G.act(0.2,['!out gyarados members:>2','+ any','+ any'],`[2] and [3] marvels at [1]'s pet Gyarados.`)
-			new G.act(0.3,['!out gyarados'],`[1]'s Gyarados `)
+			new G.act(0.2,['!out gyarados members:>1','+ any'],`[2] marvels at [1]'s pet Gyarados.`);
+			new G.act(0.2,['!out gyarados members:>2','+ any','+ any'],`[2] and [3] marvels at [1]'s pet Gyarados.`);
+			// Gyarados battle
+			// whirlpool
+			new G.act(0.05,['!out gyarados', '- any !dazed'],`[RED][1] commands their Gyarados to use <b>Whirlpool</b> on [2].<br>It's super effective!`,p=>{p[2].gain('dazed')});
+			new G.act(0.05,['!out gyarados', '- any !dizzy !dazed'],`[RED][1] commands their Gyarados to use <b>Whirlpool</b> on [2].<br>It's not very effective!`,p=>{p[2].gain('dizzy')});
+			// crunch
+			new G.act(0.05,['!out gyarados', '- any !bruised'],`[RED][1] commands their Gyarados to use <b>Crunch</b> on [2].<br>It's not very effective!`,p=>{p[2].gain('bruised')});
+			new G.act(0.02,['!out gyarados', '- any !missing_leg'],`[RED][1] commands their Gyarados to use <b>Crunch</b> on [2].<br>It's super effective!`,p=>{p[2].gain('missing leg')});
+			new G.act(0.02,['!out gyarados', '- any !missing_arm'],`[RED][1] commands their Gyarados to use <b>Crunch</b> on [2].<br>It's super effective!`,p=>{p[2].gain('missing arm')});
+			
 			// Flo generic 
 			new G.act(0.1,['alive:2 unalive:>3','+ !sociopath'],`[1] and [2] share a somber moment, remembering those who didn't make it this far.`);
 			new G.act(0.1,['survivalist teamalive:1 unalive:>3'],`[1] looks at the empty spaces where [1:their] companions once stood.`);
@@ -10192,6 +10281,7 @@ G={
 					for (var i=nodes.length-1;i>=0;i--){animAdd(nodes[i]);}
 				}
 				str = '';
+				l('roundN').innerHTML='Round '+G.round;
 				G.cacheAllTeamDeathCounts();
 				let dead=0,alive=0,others=0;
 				for (var i in G.chars)
@@ -10225,7 +10315,7 @@ G={
 						console.log('death timer' + death_timer);
 						l('roundStats').innerHTML=str;
 						l('roundStats').classList.add('enter');
-						l('roundN').innerHTML='Round '+G.round;
+						
 						l('roundStats').style.display='block';
 				}, death_timer);
 
@@ -10475,7 +10565,7 @@ G={
 				l('main').innerHTML=`
 				<div style="text-align:left;overflow:hidden;"><div class="button" id="backToCreator">&lt; Go back to team setup</div><div class="button" id="exportSetup">Export initial setup...</div><span style="float:right;"><div class="button" id="viewDetails">Details...</div><div class="button" id="nextRound2">Next round &gt;</div></span></div>
 				<header id="roundN"></header>
-				<div style="height:23px;margin-top:-30px;margin-bottom:11px;clear:both;overflow:hidden;">
+				<div style="height:23px;width:95%;margin-top:-30px;margin-bottom:11px;clear:both;overflow:hidden;">
 					<div class="button" id="logBackFull" style="float:left;">&lt; &lt;</div>
 					<div class="button" id="logBack" style="float:left;">&lt; View previous round</div>
 					<div class="button" id="logForwardFull" style="float:right;">&gt; &gt;</div>
